@@ -38,7 +38,7 @@ Game::Game(void)
 , pGameOver(engine.CreatePicTexture("../res/gfx/gameOver.png"))
 , pMusic(Mix_LoadMUS("../res/sfx/music.mp3"))
 , pBiteSound(Mix_LoadWAV("../res/sfx/bite.wav"))
-, pSquashSound(Mix_LoadWAV("../res/sfx/squash.wav"))
+, pPunchSound(Mix_LoadWAV("../res/sfx/punch.mp3"))
 , bensGame(pBensGame, { 20, 20 })
 , start(pStart, { 20, 100 })
 , exit(pExit, { 20, 160 })
@@ -56,7 +56,7 @@ Game::Game(void)
 
   Mix_MasterVolume(MIX_MAX_VOLUME);
   Mix_VolumeChunk(pBiteSound, MIX_MAX_VOLUME);
-  Mix_VolumeChunk(pSquashSound, MIX_MAX_VOLUME);
+  Mix_VolumeChunk(pPunchSound, MIX_MAX_VOLUME);
   Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
   Mix_PlayMusic(pMusic, -1);
 }
@@ -64,7 +64,7 @@ Game::Game(void)
 
 Game::~Game(void)
 {
-  Mix_FreeChunk(pSquashSound);
+  Mix_FreeChunk(pPunchSound);
   Mix_FreeChunk(pBiteSound);
   Mix_FreeMusic(pMusic);
 
@@ -190,7 +190,7 @@ void Game::Run(void)
             || (snakeHeadpos.y < 0)
             || (field[snakeHeadpos.x][snakeHeadpos.y] == true))
         {
-          (void)Mix_PlayChannel(-1, pSquashSound, 0);
+          (void)Mix_PlayChannel(-1, pPunchSound, 0);
           snakeHead.SetTexture(pSnakeHeadDead);
           running = false;
         }

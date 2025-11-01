@@ -64,7 +64,7 @@ private:
   // Sounds
   Mix_Music* pMusic;
   Mix_Chunk* pBiteSound;
-  Mix_Chunk* pSquashSound;
+  Mix_Chunk* pPunchSound;
 
   // Entities
   Entity bensGame;

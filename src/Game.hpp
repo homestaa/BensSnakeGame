@@ -6,6 +6,7 @@
 #include <deque>
 
 typedef struct _Mix_Music Mix_Music;
+typedef struct Mix_Chunk Mix_Chunk;
 
 class Game
 {
@@ -29,7 +30,7 @@ private:
   static Position constexpr FIELD_POSITION = {200, 200};
   static Position constexpr FIELD_SCALE = {800, 800};
   static Position constexpr FIELD_PART_SCALE = {FIELD_SCALE.x / FIELD_WIDTH, FIELD_SCALE.y / FIELD_HEIGHT};
-  static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 250UL;
+  static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
 
   Engine engine;
   bool running;
@@ -54,6 +55,9 @@ private:
 
   // Sounds
   Mix_Music* pMusic;
+  Mix_Chunk* pBiteSound;
+  Mix_Chunk* pGameOverSound;
+  Mix_Chunk* pSquashSound;
 
   // Entities
   Entity bensGame;

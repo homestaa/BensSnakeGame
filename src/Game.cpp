@@ -31,6 +31,9 @@ Game::Game(void)
 , pApple(engine.CreatePicTexture("../res/gfx/apple.png"))
 , pGameOver(engine.CreatePicTexture("../res/gfx/gameOver.png"))
 , pMusic(Mix_LoadMUS("../res/sfx/music.mp3"))
+, pBiteSound(Mix_LoadWAV("../res/sfx/bite.wav"))
+, pGameOverSound(Mix_LoadWAV("../res/sfx/gameOver.wav"))
+, pSquashSound(Mix_LoadWAV("../res/sfx/squash.wav"))
 , bensGame(pBensGame, { 50, 50 })
 , start(pStart, { 50, 200 })
 , exit(pExit, { 50, 300 })
@@ -44,13 +47,20 @@ Game::Game(void)
   RenderBackground();
   engine.UpdateScreen();
 
-  Mix_VolumeMusic(64);
+  Mix_MasterVolume(MIX_MAX_VOLUME);
+  Mix_VolumeChunk(pBiteSound, MIX_MAX_VOLUME);
+  Mix_VolumeChunk(pGameOverSound, MIX_MAX_VOLUME / 2);
+  Mix_VolumeChunk(pSquashSound, MIX_MAX_VOLUME);
+  Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
   Mix_PlayMusic(pMusic, -1);
 }
 
 
 Game::~Game(void)
 {
+  Mix_FreeChunk(pSquashSound);
+  Mix_FreeChunk(pGameOverSound);
+  Mix_FreeChunk(pBiteSound);
   Mix_FreeMusic(pMusic);
 
   engine.DestroyTexture(pGameOver);
@@ -171,6 +181,7 @@ void Game::Run(void)
             || (snakeHeadpos.y < 0)
             || (field[snakeHeadpos.x][snakeHeadpos.y] == true))
         {
+          (void)Mix_PlayChannel(-1, pSquashSound, 0);
           running = false;
         }
         else
@@ -179,6 +190,7 @@ void Game::Run(void)
           if (apple.IsOnPosition({ FIELD_POSITION.x + (snakeHeadpos.x * FIELD_PART_SCALE.x) + (FIELD_PART_SCALE.x / 2),
                                    FIELD_POSITION.y + (snakeHeadpos.y * FIELD_PART_SCALE.y) + (FIELD_PART_SCALE.x / 2),}))
           {
+            (void)Mix_PlayChannel(-1, pBiteSound, 0);
             RandomApplePosition();
           }
           else

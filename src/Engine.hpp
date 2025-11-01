@@ -25,7 +25,7 @@ public:
   void DestroyFont(TTF_Font* pFont);
   void Clean(SDL_Color const & color);
   void Render(Entity const & entity);
-  void Render(Position const & position, Position const & scale, SDL_Texture* const pTexture);
+  void Render(Position const & position, Position const & scale, SDL_Texture* const pTexture, double const angle = 0.0);
   void RenderText(Position const & position,
                   Position const & scale,
                   char const * const pText,

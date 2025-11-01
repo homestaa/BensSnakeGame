@@ -8,7 +8,6 @@
 #include <iostream>
 #include <string>
 
-static constexpr SDL_Color green = { 0U, 255U, 0U };
 static constexpr SDL_Color black = { 0U, 0U, 0U };
 static constexpr SDL_Color red = { 255U, 0U, 0U };
 static constexpr SDL_Color darkblue = { 0U, 0U, 50U };
@@ -24,12 +23,13 @@ Game::Game(void)
 , pressedDirection(Direction::Up)
 , currentTick(0UL)
 , lastTick(0UL)
-, pFont64(engine.CreateFont("../res/font/28DaysLater.ttf", 64))
-, pFont32(engine.CreateFont("../res/font/28DaysLater.ttf", 32))
-, pBensGame(engine.CreateTextTexture("Bens Snake Game", pFont64, black))
-, pStart(engine.CreateTextTexture("Start", pFont32, red))
-, pExit(engine.CreateTextTexture("Exit", pFont32, red))
-, pScore(engine.CreateTextTexture("x 0", pFont32, red))
+, pFontTitle(engine.CreateFont("../res/font/28DaysLater.ttf", 64))
+, pFontButton(engine.CreateFont("../res/font/GretoonHighlight.ttf", 28))
+, pFontScore(engine.CreateFont("../res/font/TradingPostBold.ttf", 36))
+, pBensGame(engine.CreateTextTexture("Bens Snake Game", pFontTitle, black))
+, pStart(engine.CreateTextTexture("Start", pFontButton, red))
+, pExit(engine.CreateTextTexture("Exit", pFontButton, red))
+, pScore(engine.CreateTextTexture("x  0", pFontScore, black))
 , pTitleBackground(engine.CreatePicTexture("../res/gfx/titleBackground.jpg"))
 , pApple(engine.CreatePicTexture("../res/gfx/apple.png"))
 , pSnakeHead(engine.CreatePicTexture("../res/gfx/snakeHead.png"))
@@ -42,7 +42,7 @@ Game::Game(void)
 , bensGame(pBensGame, { 20, 20 })
 , start(pStart, { 20, 100 })
 , exit(pExit, { 20, 160 })
-, score(pScore, { 1720, 720 })
+, score(pScore, { 1700, 712 }, { 0, 0 }, SCORE_ANGLE)
 , titleBackground(pTitleBackground, { 0, 0 })
 , apple(pApple, { 0, 0 }, FIELD_GRID_SCALE)
 , snakeHead(pSnakeHead, { 0, 0 }, { FIELD_GRID_SCALE.x, static_cast<int>(FIELD_GRID_SCALE.y * 163.0 / 104.0) })
@@ -79,8 +79,8 @@ Game::~Game(void)
   engine.DestroyTexture(pStart);
   engine.DestroyTexture(pBensGame);
 
-  engine.DestroyFont(pFont32);
-  engine.DestroyFont(pFont64);
+  engine.DestroyFont(pFontButton);
+  engine.DestroyFont(pFontTitle);
 }
 
 
@@ -203,9 +203,9 @@ void Game::Run(void)
             // Eat apple
             (void)Mix_PlayChannel(-1, pBiteSound, 0);
             RandomApplePosition();
-            std::string const scoreString = "x " + std::to_string(++scoreCount);
+            std::string const scoreString = "x  " + std::to_string(++scoreCount);
             engine.DestroyTexture(pScore);
-            pScore = engine.CreateTextTexture(scoreString.c_str(), pFont32, red);
+            pScore = engine.CreateTextTexture(scoreString.c_str(), pFontScore, black);
             score.SetTexture(pScore);
             score.SetScale(score.GetTextureSize());
           }
@@ -299,7 +299,7 @@ void Game::RenderBackground(void)
   engine.Render(start);
   engine.Render(exit);
   engine.Render(bensGame);
-  engine.Render({ 1650, 700 }, { 50, 50 }, pApple);
+  engine.Render({ 1640, 695 }, { 50, 50 }, pApple, SCORE_ANGLE);
   engine.Render(score);
 }
 

@@ -1,26 +1,19 @@
 #include "Entity.hpp"
 #include <SDL_render.h>
 
-Entity::Entity(SDL_Texture* pTexture, Position const & position)
+Entity::Entity(SDL_Texture* const pTexture,
+               Position const & position,
+               Position const & scale,
+               double const angle)
 : pTexture_(pTexture)
 , textureSize{ 0, 0 }
 , position_(position)
-, scale_{ 0, 0 }
-, angle_(0.0)
-{
-  SDL_QueryTexture(pTexture, nullptr, nullptr, &textureSize.x, &textureSize.y);
-  scale_ = textureSize;
-}
-
-
-Entity::Entity(SDL_Texture* pTexture, Position const & position, Position const & scale)
-: pTexture_(pTexture)
-, textureSize{0, 0}
-, position_(position)
 , scale_(scale)
-, angle_(0.0)
+, angle_(angle)
 {
   SDL_QueryTexture(pTexture, nullptr, nullptr, &textureSize.x, &textureSize.y);
+  if (scale == Position{ 0, 0 })
+    scale_ = textureSize;
 }
 
 
@@ -48,7 +41,13 @@ Position Entity::GetPosition(void) const
 }
 
 
-void Entity::SetTexture(SDL_Texture* pTexture)
+double Entity::GetAngle(void) const
+{
+  return angle_;
+}
+
+
+void Entity::SetTexture(SDL_Texture* const pTexture)
 {
   pTexture_ = pTexture;
   SDL_QueryTexture(pTexture, nullptr, nullptr, &textureSize.x, &textureSize.y);

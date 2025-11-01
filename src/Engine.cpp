@@ -132,11 +132,11 @@ void Engine::Render(Entity const & entity)
     .h = entity.GetScale().y
   };
 
-  SDL_RenderCopy(pRenderer, entity.GetTexture(), &src, &dst);
+  SDL_RenderCopyEx(pRenderer, entity.GetTexture(), &src, &dst, entity.GetAngle(), nullptr, SDL_FLIP_NONE);
 }
 
 
-void Engine::Render(Position const & position, Position const & scale, SDL_Texture* const pTexture)
+void Engine::Render(Position const & position, Position const & scale, SDL_Texture* const pTexture, double angle)
 {
   SDL_Rect src = { 0 };
   SDL_QueryTexture(pTexture, nullptr, nullptr, &src.w, &src.h);
@@ -148,7 +148,7 @@ void Engine::Render(Position const & position, Position const & scale, SDL_Textu
     .h = scale.y
   };
 
-  SDL_RenderCopy(pRenderer, pTexture, &src, &dst);
+  SDL_RenderCopyEx(pRenderer, pTexture, &src, &dst, angle, nullptr, SDL_FLIP_NONE);
 }
 
 

@@ -27,10 +27,11 @@ private:
 
   static int constexpr FIELD_WIDTH = 40;
   static int constexpr FIELD_HEIGHT = 40;
-  static Position constexpr FIELD_POSITION = {110, 100};
+  static Position constexpr FIELD_POSITION = {140, 100};
   static Position constexpr FIELD_SCALE = { Engine::SCREEN_HEIGHT - FIELD_POSITION.y,
                                             Engine::SCREEN_HEIGHT - FIELD_POSITION.y };
   static Position constexpr FIELD_GRID_SCALE = {FIELD_SCALE.x / FIELD_WIDTH, FIELD_SCALE.y / FIELD_HEIGHT};
+  static double constexpr SCORE_ANGLE = 10.0;
   static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
 
   Engine engine;
@@ -44,8 +45,9 @@ private:
   uint64_t lastTick;
 
   // Fonts
-  TTF_Font* pFont64;
-  TTF_Font* pFont32;
+  TTF_Font* pFontTitle;
+  TTF_Font* pFontButton;
+  TTF_Font* pFontScore;
 
   // Textures
   SDL_Texture* pBensGame;

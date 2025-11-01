@@ -29,11 +29,14 @@ Game::Game(void)
 , pExit(engine.CreateTextTexture("Exit", pFont32, red))
 , pTitleBackground(engine.CreatePicTexture("../res/gfx/titleBackground.jpg"))
 , pApple(engine.CreatePicTexture("../res/gfx/apple.png"))
+, pGameOver(engine.CreatePicTexture("../res/gfx/gameOver.png"))
+, pMusic(Mix_LoadMUS("res/sfx/diddyKong.mp3"))
 , bensGame(pBensGame, { 50, 50 })
 , start(pStart, { 50, 200 })
 , exit(pExit, { 50, 300 })
 , titleBackground(pTitleBackground, { 0, 0 })
 , apple(pApple, { 0, 0 }, FIELD_PART_SCALE)
+, gameOver(pGameOver, { FIELD_POSITION.x, FIELD_POSITION.y + 120 }, { 800, 480 })
 {
   // use current time as seed for random generator
   std::srand(std::time({}));
@@ -41,13 +44,16 @@ Game::Game(void)
   RenderBackground();
   engine.UpdateScreen();
 
-  Mix_Music* pMusic = Mix_LoadMUS("res/sfx/diddyKong.mp3");
+  Mix_VolumeMusic(64);
   Mix_PlayMusic(pMusic, -1);
 }
 
 
 Game::~Game(void)
 {
+  Mix_FreeMusic(pMusic);
+
+  engine.DestroyTexture(pGameOver);
   engine.DestroyTexture(pApple);
   engine.DestroyTexture(pTitleBackground);
   engine.DestroyTexture(pExit);
@@ -199,6 +205,11 @@ void Game::Run(void)
       }
 
       engine.Render(apple);
+
+      if (!running)
+      {
+        engine.Render(gameOver);
+      }
 
       engine.UpdateScreen();
     }

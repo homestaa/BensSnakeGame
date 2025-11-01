@@ -5,6 +5,8 @@
 #include "Position.hpp"
 #include <deque>
 
+typedef struct _Mix_Music Mix_Music;
+
 class Game
 {
 public:
@@ -48,6 +50,10 @@ private:
   SDL_Texture* pExit;
   SDL_Texture* pTitleBackground;
   SDL_Texture* pApple;
+  SDL_Texture* pGameOver;
+
+  // Sounds
+  Mix_Music* pMusic;
 
   // Entities
   Entity bensGame;
@@ -55,6 +61,7 @@ private:
   Entity exit;
   Entity titleBackground;
   Entity apple;
+  Entity gameOver;
 
   void Reset(void);
   void AddSnakeHead(Position const fieldpos);

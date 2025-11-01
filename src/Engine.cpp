@@ -4,6 +4,7 @@
 
 #include <SDL_error.h>
 #include <SDL_image.h>
+#include <SDL_render.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #include <iostream>
@@ -132,6 +133,22 @@ void Engine::Render(Entity const & entity)
   };
 
   SDL_RenderCopy(pRenderer, entity.GetTexture(), &src, &dst);
+}
+
+
+void Engine::Render(Position const & position, Position const & scale, SDL_Texture* const pTexture)
+{
+  SDL_Rect src = { 0 };
+  SDL_QueryTexture(pTexture, nullptr, nullptr, &src.w, &src.h);
+
+  SDL_Rect dst = {
+    .x = position.x,
+    .y = position.y,
+    .w = scale.x,
+    .h = scale.y
+  };
+
+  SDL_RenderCopy(pRenderer, pTexture, &src, &dst);
 }
 
 

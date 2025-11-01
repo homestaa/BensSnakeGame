@@ -30,6 +30,7 @@ Game::Game(void)
 , pTitleBackground(engine.CreatePicTexture("../res/gfx/titleBackground.jpg"))
 , pApple(engine.CreatePicTexture("../res/gfx/apple.png"))
 , pSnakeHead(engine.CreatePicTexture("../res/gfx/snakeHead.png"))
+, pSnakeSkin(engine.CreatePicTexture("../res/gfx/snakeSkin.jpg"))
 , pGameOver(engine.CreatePicTexture("../res/gfx/gameOver.png"))
 , pMusic(Mix_LoadMUS("../res/sfx/music.mp3"))
 , pBiteSound(Mix_LoadWAV("../res/sfx/bite.wav"))
@@ -63,6 +64,7 @@ Game::~Game(void)
   Mix_FreeMusic(pMusic);
 
   engine.DestroyTexture(pGameOver);
+  engine.DestroyTexture(pSnakeSkin);
   engine.DestroyTexture(pSnakeHead);
   engine.DestroyTexture(pApple);
   engine.DestroyTexture(pTitleBackground);
@@ -207,12 +209,22 @@ void Game::Run(void)
       {
         for (int column = 0; column < FIELD_HEIGHT; ++column)
         {
-          engine.RenderRect({ FIELD_POSITION.x + (column * FIELD_GRID_SCALE.x),
-                              FIELD_POSITION.y + (line * FIELD_GRID_SCALE.y)},
-                            FIELD_GRID_SCALE,
-                            (field[column][line] == true)    ? green  // Snake
-                              : (((line + column) % 2) == 0) ? darkblue
-                              :                                darkerblue);
+          if (field[column][line] == true)
+          {
+            // Draw Snake
+            engine.Render({ FIELD_POSITION.x + (column * FIELD_GRID_SCALE.x),
+                            FIELD_POSITION.y + (line * FIELD_GRID_SCALE.y)},
+                          FIELD_GRID_SCALE,
+                          pSnakeSkin);
+          }
+          else
+          {
+            // Draw Grid
+            engine.RenderRect({ FIELD_POSITION.x + (column * FIELD_GRID_SCALE.x),
+                                FIELD_POSITION.y + (line * FIELD_GRID_SCALE.y)},
+                              FIELD_GRID_SCALE,
+                              (((line + column) % 2) == 0) ? darkblue : darkerblue);
+          }
         }
       }
 

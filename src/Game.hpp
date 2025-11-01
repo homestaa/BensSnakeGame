@@ -52,6 +52,7 @@ private:
   SDL_Texture* pTitleBackground;
   SDL_Texture* pApple;
   SDL_Texture* pSnakeHead;
+  SDL_Texture* pSnakeSkin;
   SDL_Texture* pGameOver;
 
   // Sounds

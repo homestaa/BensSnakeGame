@@ -9,7 +9,7 @@
 #include <string>
 
 static constexpr SDL_Color black = { 0U, 0U, 0U };
-static constexpr SDL_Color red = { 255U, 0U, 0U };
+static constexpr SDL_Color red = { 180U, 0U, 0U };
 static constexpr SDL_Color darkblue = { 0U, 0U, 50U };
 static constexpr SDL_Color darkerblue = { 0U, 0U, 40U };
 

@@ -39,14 +39,14 @@ Game::Game(void)
 , pMusic(Mix_LoadMUS("../res/sfx/music.mp3"))
 , pBiteSound(Mix_LoadWAV("../res/sfx/bite.wav"))
 , pSquashSound(Mix_LoadWAV("../res/sfx/squash.wav"))
-, bensGame(pBensGame, { 50, 50 })
-, start(pStart, { 50, 200 })
-, exit(pExit, { 50, 300 })
+, bensGame(pBensGame, { 20, 20 })
+, start(pStart, { 20, 100 })
+, exit(pExit, { 20, 160 })
 , score(pScore, { 1720, 720 })
 , titleBackground(pTitleBackground, { 0, 0 })
 , apple(pApple, { 0, 0 }, FIELD_GRID_SCALE)
 , snakeHead(pSnakeHead, { 0, 0 }, { FIELD_GRID_SCALE.x, static_cast<int>(FIELD_GRID_SCALE.y * 163.0 / 104.0) })
-, gameOver(pGameOver, { FIELD_POSITION.x, FIELD_POSITION.y + 120 }, { 800, 480 })
+, gameOver(pGameOver, { FIELD_POSITION.x + 60, FIELD_POSITION.y + 200 }, { 800, 480 })
 {
   // use current time as seed for random generator
   std::srand(std::time({}));

@@ -25,10 +25,11 @@ private:
     Right
   };
 
-  static int constexpr FIELD_WIDTH = 50;
-  static int constexpr FIELD_HEIGHT = 50;
-  static Position constexpr FIELD_POSITION = {200, 200};
-  static Position constexpr FIELD_SCALE = {800, 800};
+  static int constexpr FIELD_WIDTH = 40;
+  static int constexpr FIELD_HEIGHT = 40;
+  static Position constexpr FIELD_POSITION = {110, 100};
+  static Position constexpr FIELD_SCALE = { Engine::SCREEN_HEIGHT - FIELD_POSITION.y,
+                                            Engine::SCREEN_HEIGHT - FIELD_POSITION.y };
   static Position constexpr FIELD_GRID_SCALE = {FIELD_SCALE.x / FIELD_WIDTH, FIELD_SCALE.y / FIELD_HEIGHT};
   static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
 

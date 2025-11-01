@@ -33,7 +33,6 @@ Game::Game(void)
 , pGameOver(engine.CreatePicTexture("../res/gfx/gameOver.png"))
 , pMusic(Mix_LoadMUS("../res/sfx/music.mp3"))
 , pBiteSound(Mix_LoadWAV("../res/sfx/bite.wav"))
-, pGameOverSound(Mix_LoadWAV("../res/sfx/gameOver.wav"))
 , pSquashSound(Mix_LoadWAV("../res/sfx/squash.wav"))
 , bensGame(pBensGame, { 50, 50 })
 , start(pStart, { 50, 200 })
@@ -51,7 +50,6 @@ Game::Game(void)
 
   Mix_MasterVolume(MIX_MAX_VOLUME);
   Mix_VolumeChunk(pBiteSound, MIX_MAX_VOLUME);
-  Mix_VolumeChunk(pGameOverSound, MIX_MAX_VOLUME / 2);
   Mix_VolumeChunk(pSquashSound, MIX_MAX_VOLUME);
   Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
   Mix_PlayMusic(pMusic, -1);
@@ -61,7 +59,6 @@ Game::Game(void)
 Game::~Game(void)
 {
   Mix_FreeChunk(pSquashSound);
-  Mix_FreeChunk(pGameOverSound);
   Mix_FreeChunk(pBiteSound);
   Mix_FreeMusic(pMusic);
 

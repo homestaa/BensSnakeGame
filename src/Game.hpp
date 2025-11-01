@@ -57,7 +57,6 @@ private:
   // Sounds
   Mix_Music* pMusic;
   Mix_Chunk* pBiteSound;
-  Mix_Chunk* pGameOverSound;
   Mix_Chunk* pSquashSound;
 
   // Entities

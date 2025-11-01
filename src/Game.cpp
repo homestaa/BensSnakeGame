@@ -6,6 +6,7 @@
 #include <SDL_mixer.h>
 #include <ctime>
 #include <iostream>
+#include <string>
 
 static constexpr SDL_Color green = { 0U, 255U, 0U };
 static constexpr SDL_Color black = { 0U, 0U, 0U };
@@ -16,6 +17,7 @@ static constexpr SDL_Color darkerblue = { 0U, 0U, 40U };
 Game::Game(void)
 : engine()
 , running(false)
+, scoreCount(0U)
 , field{ {0}, {0} }
 , snake()
 , snakeDirection(Direction::Up)
@@ -27,6 +29,7 @@ Game::Game(void)
 , pBensGame(engine.CreateTextTexture("Bens Snake Game", pFont64, black))
 , pStart(engine.CreateTextTexture("Start", pFont32, red))
 , pExit(engine.CreateTextTexture("Exit", pFont32, red))
+, pScore(engine.CreateTextTexture("x 0", pFont32, red))
 , pTitleBackground(engine.CreatePicTexture("../res/gfx/titleBackground.jpg"))
 , pApple(engine.CreatePicTexture("../res/gfx/apple.png"))
 , pSnakeHead(engine.CreatePicTexture("../res/gfx/snakeHead.png"))
@@ -39,6 +42,7 @@ Game::Game(void)
 , bensGame(pBensGame, { 50, 50 })
 , start(pStart, { 50, 200 })
 , exit(pExit, { 50, 300 })
+, score(pScore, { 1720, 720 })
 , titleBackground(pTitleBackground, { 0, 0 })
 , apple(pApple, { 0, 0 }, FIELD_GRID_SCALE)
 , snakeHead(pSnakeHead, { 0, 0 }, { FIELD_GRID_SCALE.x, static_cast<int>(FIELD_GRID_SCALE.y * 163.0 / 104.0) })
@@ -70,6 +74,7 @@ Game::~Game(void)
   engine.DestroyTexture(pSnakeHead);
   engine.DestroyTexture(pApple);
   engine.DestroyTexture(pTitleBackground);
+  engine.DestroyTexture(pScore);
   engine.DestroyTexture(pExit);
   engine.DestroyTexture(pStart);
   engine.DestroyTexture(pBensGame);
@@ -195,8 +200,14 @@ void Game::Run(void)
           if (apple.IsOnPosition({ FIELD_POSITION.x + (snakeHeadpos.x * FIELD_GRID_SCALE.x) + (FIELD_GRID_SCALE.x / 2),
                                    FIELD_POSITION.y + (snakeHeadpos.y * FIELD_GRID_SCALE.y) + (FIELD_GRID_SCALE.x / 2),}))
           {
+            // Eat apple
             (void)Mix_PlayChannel(-1, pBiteSound, 0);
             RandomApplePosition();
+            std::string const scoreString = "x " + std::to_string(++scoreCount);
+            engine.DestroyTexture(pScore);
+            pScore = engine.CreateTextTexture(scoreString.c_str(), pFont32, red);
+            score.SetTexture(pScore);
+            score.SetScale(score.GetTextureSize());
           }
           else
           {
@@ -252,6 +263,7 @@ void Game::Reset(void)
   snakeHead.SetTexture(pSnakeHead);
   snakeDirection = Direction::Up;
   pressedDirection = Direction::Up;
+  scoreCount = 0U;
 
   // Start with 3 parts sized snake
   AddSnakeHead({FIELD_WIDTH / 2, FIELD_HEIGHT - 1});
@@ -268,8 +280,8 @@ void Game::Reset(void)
 void Game::AddSnakeHead(Position const fieldpos)
 {
   snake.push_front(fieldpos);
-  snakeHead.SetPosition(FIELD_POSITION.x + fieldpos.x * FIELD_GRID_SCALE.x,
-                        FIELD_POSITION.y + fieldpos.y * FIELD_GRID_SCALE.y);
+  snakeHead.SetPosition({ FIELD_POSITION.x + fieldpos.x * FIELD_GRID_SCALE.x,
+                          FIELD_POSITION.y + fieldpos.y * FIELD_GRID_SCALE.y });
   field[fieldpos.x][fieldpos.y] = true;
 }
 
@@ -287,6 +299,8 @@ void Game::RenderBackground(void)
   engine.Render(start);
   engine.Render(exit);
   engine.Render(bensGame);
+  engine.Render({ 1650, 700 }, { 50, 50 }, pApple);
+  engine.Render(score);
 }
 
 
@@ -294,6 +308,6 @@ void Game::RandomApplePosition(void)
 {
   int const xRandom = std::rand() % FIELD_WIDTH;
   int const yRandom = std::rand() % FIELD_HEIGHT;
-  apple.SetPosition(FIELD_POSITION.x + (xRandom * FIELD_GRID_SCALE.x),
-                    FIELD_POSITION.y + (yRandom * FIELD_GRID_SCALE.y));
+  apple.SetPosition({ FIELD_POSITION.x + (xRandom * FIELD_GRID_SCALE.x),
+                      FIELD_POSITION.y + (yRandom * FIELD_GRID_SCALE.y) });
 }

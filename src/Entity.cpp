@@ -51,20 +51,21 @@ Position Entity::GetPosition(void) const
 void Entity::SetTexture(SDL_Texture* pTexture)
 {
   pTexture_ = pTexture;
+  SDL_QueryTexture(pTexture, nullptr, nullptr, &textureSize.x, &textureSize.y);
 }
 
 
-void Entity::SetPosition(int const x, int const y)
+void Entity::SetPosition(Position const & position)
 {
-  position_.x = x;
-  position_.y = y;
+  position_.x = position.x ;
+  position_.y = position.y ;
 }
 
 
-void Entity::SetScale(int const w, int const h)
+void Entity::SetScale(Position const & scale)
 {
-  scale_.x = w;
-  scale_.y = h;
+  scale_.x = scale.x;
+  scale_.y = scale.y;
 }
 
 

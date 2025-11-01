@@ -152,28 +152,15 @@ void Engine::Render(Position const & position, Position const & scale, SDL_Textu
 }
 
 
-void Engine::RenderText(char const * const pText, TTF_Font* font, SDL_Color textColor, Position const & position)
+void Engine::RenderText(Position const & position,
+                        Position const & scale,
+                        char const * const pText,
+                        TTF_Font* pFont,
+                        SDL_Color const & textColor)
 {
-  SDL_Surface* surfaceMessage = TTF_RenderText_Blended( font, pText, textColor);
-  SDL_Texture* message = SDL_CreateTextureFromSurface(pRenderer, surfaceMessage);
-
-  SDL_Rect const src = {
-    .x = 0,
-    .y = 0,
-    .w = surfaceMessage->w,
-    .h = surfaceMessage->h
-  };
-
-  SDL_Rect const dst = {
-    .x = position.x,
-    .y = position.y,
-    .w = src.w,
-    .h = src.h
-  };
-
-  SDL_RenderCopy(pRenderer, message, &src, &dst);
-  SDL_FreeSurface(surfaceMessage);
-  SDL_DestroyTexture(message);
+  SDL_Texture* pTexture = CreateTextTexture(pText, pFont, textColor);
+  Render(position, scale, pTexture);
+  SDL_DestroyTexture(pTexture);
 }
 
 

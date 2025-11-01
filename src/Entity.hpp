@@ -16,8 +16,8 @@ public:
   Position GetScale(void) const;
   Position GetPosition(void) const;
   void SetTexture(SDL_Texture* pTexture);
-  void SetPosition(int const x, int const y);
-  void SetScale(int const w, int const h);
+  void SetPosition(Position const & position);
+  void SetScale(Position const & scale);
   void SetAngle(double const angle);
   bool IsOnPosition(Position const & position) const;
 

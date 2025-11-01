@@ -34,6 +34,7 @@ private:
 
   Engine engine;
   bool running;
+  uint16_t scoreCount;
   bool field[FIELD_WIDTH][FIELD_HEIGHT];
   std::deque<Position> snake;
   Direction snakeDirection;
@@ -49,6 +50,7 @@ private:
   SDL_Texture* pBensGame;
   SDL_Texture* pStart;
   SDL_Texture* pExit;
+  SDL_Texture* pScore;
   SDL_Texture* pTitleBackground;
   SDL_Texture* pApple;
   SDL_Texture* pSnakeHead;
@@ -65,6 +67,7 @@ private:
   Entity bensGame;
   Entity start;
   Entity exit;
+  Entity score;
   Entity titleBackground;
   Entity apple;
   Entity snakeHead;

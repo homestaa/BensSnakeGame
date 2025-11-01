@@ -15,6 +15,7 @@ public:
   Position GetTextureSize(void) const;
   Position GetScale(void) const;
   Position GetPosition(void) const;
+  void SetTexture(SDL_Texture* pTexture);
   void SetPosition(int const x, int const y);
   void SetScale(int const w, int const h);
   void SetAngle(double const angle);

@@ -30,6 +30,7 @@ Game::Game(void)
 , pTitleBackground(engine.CreatePicTexture("../res/gfx/titleBackground.jpg"))
 , pApple(engine.CreatePicTexture("../res/gfx/apple.png"))
 , pSnakeHead(engine.CreatePicTexture("../res/gfx/snakeHead.png"))
+, pSnakeHeadDead(engine.CreatePicTexture("../res/gfx/snakeHeadDead.png"))
 , pSnakeSkin(engine.CreatePicTexture("../res/gfx/snakeSkin.jpg"))
 , pGameOver(engine.CreatePicTexture("../res/gfx/gameOver.png"))
 , pMusic(Mix_LoadMUS("../res/sfx/music.mp3"))
@@ -65,6 +66,7 @@ Game::~Game(void)
 
   engine.DestroyTexture(pGameOver);
   engine.DestroyTexture(pSnakeSkin);
+  engine.DestroyTexture(pSnakeHeadDead);
   engine.DestroyTexture(pSnakeHead);
   engine.DestroyTexture(pApple);
   engine.DestroyTexture(pTitleBackground);
@@ -184,6 +186,7 @@ void Game::Run(void)
             || (field[snakeHeadpos.x][snakeHeadpos.y] == true))
         {
           (void)Mix_PlayChannel(-1, pSquashSound, 0);
+          snakeHead.SetTexture(pSnakeHeadDead);
           running = false;
         }
         else
@@ -246,6 +249,7 @@ void Game::Reset(void)
 {
   memset(field, 0, sizeof(field));
   snake.clear();
+  snakeHead.SetTexture(pSnakeHead);
   snakeDirection = Direction::Up;
   pressedDirection = Direction::Up;
 

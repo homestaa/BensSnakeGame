@@ -48,6 +48,12 @@ Position Entity::GetPosition(void) const
 }
 
 
+void Entity::SetTexture(SDL_Texture* pTexture)
+{
+  pTexture_ = pTexture;
+}
+
+
 void Entity::SetPosition(int const x, int const y)
 {
   position_.x = x;

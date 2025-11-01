@@ -29,7 +29,7 @@ private:
   static int constexpr FIELD_HEIGHT = 50;
   static Position constexpr FIELD_POSITION = {200, 200};
   static Position constexpr FIELD_SCALE = {800, 800};
-  static Position constexpr FIELD_PART_SCALE = {FIELD_SCALE.x / FIELD_WIDTH, FIELD_SCALE.y / FIELD_HEIGHT};
+  static Position constexpr FIELD_GRID_SCALE = {FIELD_SCALE.x / FIELD_WIDTH, FIELD_SCALE.y / FIELD_HEIGHT};
   static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
 
   Engine engine;
@@ -51,6 +51,7 @@ private:
   SDL_Texture* pExit;
   SDL_Texture* pTitleBackground;
   SDL_Texture* pApple;
+  SDL_Texture* pSnakeHead;
   SDL_Texture* pGameOver;
 
   // Sounds
@@ -65,6 +66,7 @@ private:
   Entity exit;
   Entity titleBackground;
   Entity apple;
+  Entity snakeHead;
   Entity gameOver;
 
   void Reset(void);

@@ -7,7 +7,7 @@
 #include <ctime>
 #include <iostream>
 
-static constexpr SDL_Color white = { 255U, 255U, 255U };
+static constexpr SDL_Color green = { 0U, 255U, 0U };
 static constexpr SDL_Color black = { 0U, 0U, 0U };
 static constexpr SDL_Color red = { 255U, 0U, 0U };
 static constexpr SDL_Color darkblue = { 0U, 0U, 50U };
@@ -29,6 +29,7 @@ Game::Game(void)
 , pExit(engine.CreateTextTexture("Exit", pFont32, red))
 , pTitleBackground(engine.CreatePicTexture("../res/gfx/titleBackground.jpg"))
 , pApple(engine.CreatePicTexture("../res/gfx/apple.png"))
+, pSnakeHead(engine.CreatePicTexture("../res/gfx/snakeHead.png"))
 , pGameOver(engine.CreatePicTexture("../res/gfx/gameOver.png"))
 , pMusic(Mix_LoadMUS("../res/sfx/music.mp3"))
 , pBiteSound(Mix_LoadWAV("../res/sfx/bite.wav"))
@@ -38,7 +39,8 @@ Game::Game(void)
 , start(pStart, { 50, 200 })
 , exit(pExit, { 50, 300 })
 , titleBackground(pTitleBackground, { 0, 0 })
-, apple(pApple, { 0, 0 }, FIELD_PART_SCALE)
+, apple(pApple, { 0, 0 }, FIELD_GRID_SCALE)
+, snakeHead(pSnakeHead, { 0, 0 }, { FIELD_GRID_SCALE.x, static_cast<int>(FIELD_GRID_SCALE.y * 163.0 / 104.0) })
 , gameOver(pGameOver, { FIELD_POSITION.x, FIELD_POSITION.y + 120 }, { 800, 480 })
 {
   // use current time as seed for random generator
@@ -64,6 +66,7 @@ Game::~Game(void)
   Mix_FreeMusic(pMusic);
 
   engine.DestroyTexture(pGameOver);
+  engine.DestroyTexture(pSnakeHead);
   engine.DestroyTexture(pApple);
   engine.DestroyTexture(pTitleBackground);
   engine.DestroyTexture(pExit);
@@ -187,8 +190,8 @@ void Game::Run(void)
         else
         {
           AddSnakeHead(snakeHeadpos);
-          if (apple.IsOnPosition({ FIELD_POSITION.x + (snakeHeadpos.x * FIELD_PART_SCALE.x) + (FIELD_PART_SCALE.x / 2),
-                                   FIELD_POSITION.y + (snakeHeadpos.y * FIELD_PART_SCALE.y) + (FIELD_PART_SCALE.x / 2),}))
+          if (apple.IsOnPosition({ FIELD_POSITION.x + (snakeHeadpos.x * FIELD_GRID_SCALE.x) + (FIELD_GRID_SCALE.x / 2),
+                                   FIELD_POSITION.y + (snakeHeadpos.y * FIELD_GRID_SCALE.y) + (FIELD_GRID_SCALE.x / 2),}))
           {
             (void)Mix_PlayChannel(-1, pBiteSound, 0);
             RandomApplePosition();
@@ -207,15 +210,16 @@ void Game::Run(void)
       {
         for (int column = 0; column < FIELD_HEIGHT; ++column)
         {
-          engine.RenderRect({ FIELD_POSITION.x + (column * FIELD_PART_SCALE.x),
-                              FIELD_POSITION.y + (line * FIELD_PART_SCALE.y)},
-                            FIELD_PART_SCALE,
-                            (field[column][line] == true)    ? white  // Snake
+          engine.RenderRect({ FIELD_POSITION.x + (column * FIELD_GRID_SCALE.x),
+                              FIELD_POSITION.y + (line * FIELD_GRID_SCALE.y)},
+                            FIELD_GRID_SCALE,
+                            (field[column][line] == true)    ? green  // Snake
                               : (((line + column) % 2) == 0) ? darkblue
                               :                                darkerblue);
         }
       }
 
+      engine.Render(snakeHead);
       engine.Render(apple);
 
       if (!running)
@@ -251,6 +255,8 @@ void Game::Reset(void)
 void Game::AddSnakeHead(Position const fieldpos)
 {
   snake.push_front(fieldpos);
+  snakeHead.SetPosition(FIELD_POSITION.x + fieldpos.x * FIELD_GRID_SCALE.x,
+                        FIELD_POSITION.y + fieldpos.y * FIELD_GRID_SCALE.y);
   field[fieldpos.x][fieldpos.y] = true;
 }
 
@@ -275,6 +281,6 @@ void Game::RandomApplePosition(void)
 {
   int const xRandom = std::rand() % FIELD_WIDTH;
   int const yRandom = std::rand() % FIELD_HEIGHT;
-  apple.SetPosition(FIELD_POSITION.x + (xRandom * FIELD_PART_SCALE.x),
-                    FIELD_POSITION.y + (yRandom * FIELD_PART_SCALE.y));
+  apple.SetPosition(FIELD_POSITION.x + (xRandom * FIELD_GRID_SCALE.x),
+                    FIELD_POSITION.y + (yRandom * FIELD_GRID_SCALE.y));
 }

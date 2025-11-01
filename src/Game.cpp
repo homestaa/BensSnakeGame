@@ -176,8 +176,8 @@ void Game::Run(void)
         else
         {
           AddSnakeHead(snakeHeadpos);
-          if (apple.IsOnPosition({ FIELD_POSITION.x + (snakeHeadpos.x * FIELD_PART_SCALE.x),
-                                   FIELD_POSITION.y + (snakeHeadpos.y * FIELD_PART_SCALE.y) }))
+          if (apple.IsOnPosition({ FIELD_POSITION.x + (snakeHeadpos.x * FIELD_PART_SCALE.x) + (FIELD_PART_SCALE.x / 2),
+                                   FIELD_POSITION.y + (snakeHeadpos.y * FIELD_PART_SCALE.y) + (FIELD_PART_SCALE.x / 2),}))
           {
             RandomApplePosition();
           }

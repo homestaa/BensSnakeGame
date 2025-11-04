@@ -8,7 +8,7 @@ class Entity
 {
 public:
   Entity(SDL_Texture* const pTexture,
-         Position const & position,
+         Position const & position = { 0, 0 },
          Position const & scale = { 0, 0 },
          double const angle = 0.0);
   ~Entity(void) = default;

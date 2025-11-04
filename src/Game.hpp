@@ -4,6 +4,7 @@
 #include "Entity.hpp"
 #include "Position.hpp"
 #include <deque>
+#include <string>
 
 typedef struct _Mix_Music Mix_Music;
 typedef struct Mix_Chunk Mix_Chunk;
@@ -25,6 +26,13 @@ private:
     Right
   };
 
+  enum class State
+  {
+    Init,
+    Running,
+    GameOver
+  };
+
   static int constexpr FIELD_WIDTH = 40;
   static int constexpr FIELD_HEIGHT = 40;
   static Position constexpr FIELD_POSITION = {140, 100};
@@ -35,31 +43,37 @@ private:
   static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
 
   Engine engine;
-  bool running;
+  State state;
+  bool quit;
   uint16_t scoreCount;
   bool field[FIELD_WIDTH][FIELD_HEIGHT];
   std::deque<Position> snake;
   Direction snakeDirection;
   Direction pressedDirection;
   uint64_t currentTick;
-  uint64_t lastTick;
+  uint64_t lastGameHandleTick;
+  uint64_t lastHighScoreHandleTick;
+  std::string highscoresStr;
 
   // Fonts
   TTF_Font* pFontTitle;
   TTF_Font* pFontButton;
   TTF_Font* pFontScore;
+  TTF_Font* pFontHighscores;
 
   // Textures
   SDL_Texture* pBensGame;
   SDL_Texture* pStart;
   SDL_Texture* pExit;
   SDL_Texture* pScore;
+  SDL_Texture* pHighscores;
   SDL_Texture* pTitleBackground;
   SDL_Texture* pApple;
   SDL_Texture* pSnakeHead;
   SDL_Texture* pSnakeHeadDead;
   SDL_Texture* pSnakeSkin;
   SDL_Texture* pGameOver;
+  SDL_Texture* pPlane;
 
   // Sounds
   Mix_Music* pMusic;
@@ -76,10 +90,19 @@ private:
   Entity apple;
   Entity snakeHead;
   Entity gameOver;
+  Entity plane;
+  Entity highscores;
 
   void Reset(void);
   void AddSnakeHead(Position const fieldpos);
   void RemoveSnakeTail(void);
   void RenderBackground(void);
   void RandomApplePosition(void);
+  void UpdateScoreDisplay(void);
+  void HandleEvent(void);
+  void HandleGame(void);
+  void RenderField(void);
+  void Render(void);
+  void HandlePlanePosition(void);
+  void RenderPlane(void);
 };

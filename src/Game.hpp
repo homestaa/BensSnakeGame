@@ -5,6 +5,7 @@
 #include "Position.hpp"
 #include <deque>
 #include <string>
+#include <array>
 
 typedef struct _Mix_Music Mix_Music;
 typedef struct Mix_Chunk Mix_Chunk;
@@ -30,7 +31,14 @@ private:
   {
     Init,
     Running,
-    GameOver
+    GameOver,
+    NewHighscore
+  };
+
+  struct HighscoreEntry
+  {
+    std::string name;
+    uint16_t score;
   };
 
   static int constexpr FIELD_WIDTH = 40;
@@ -54,6 +62,8 @@ private:
   uint64_t lastGameHandleTick;
   uint64_t lastHighScoreHandleTick;
   std::string highscoresStr;
+  std::string newHighscoreName;
+  std::array<HighscoreEntry, 3> highscoreEntries;
 
   // Fonts
   TTF_Font* pFontTitle;
@@ -74,6 +84,7 @@ private:
   SDL_Texture* pSnakeSkin;
   SDL_Texture* pGameOver;
   SDL_Texture* pPlane;
+  SDL_Texture* pTrophy;
 
   // Sounds
   Mix_Music* pMusic;
@@ -92,6 +103,7 @@ private:
   Entity gameOver;
   Entity plane;
   Entity highscores;
+  Entity trophy;
 
   void Reset(void);
   void AddSnakeHead(Position const fieldpos);
@@ -105,4 +117,8 @@ private:
   void Render(void);
   void HandlePlanePosition(void);
   void RenderPlane(void);
+  void HandleNewHighscore(void);
+  void RenderInputForNewHighscore(void);
+  void UpdateHighscoreBanner(void);
+  void StoreHighscores();
 };

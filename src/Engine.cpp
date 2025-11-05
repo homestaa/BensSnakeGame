@@ -156,12 +156,13 @@ void Engine::Render(Position const & position, Position const & scale, SDL_Textu
 
 
 void Engine::RenderText(Position const & position,
-                        Position const & scale,
                         char const * const pText,
                         TTF_Font* pFont,
                         SDL_Color const & textColor)
 {
   SDL_Texture* pTexture = CreateTextTexture(pText, pFont, textColor);
+  Position scale = { 0 };
+  SDL_QueryTexture(pTexture, nullptr, nullptr, &scale.x, &scale.y);
   Render(position, scale, pTexture);
   SDL_DestroyTexture(pTexture);
 }

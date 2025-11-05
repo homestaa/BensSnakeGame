@@ -3,14 +3,19 @@
 #include "Position.hpp"
 #include <SDL.h>
 #include <SDL_events.h>
+#include <SDL_keyboard.h>
+#include <SDL_keycode.h>
 #include <SDL_mixer.h>
+#include <algorithm>
 #include <ctime>
+#include <fstream>
 #include <iostream>
 #include <string>
 
 static constexpr SDL_Color black = { 0U, 0U, 0U };
 static constexpr SDL_Color white = { 255U, 255U, 255U };
 static constexpr SDL_Color red = { 180U, 0U, 0U };
+static constexpr SDL_Color gold = { 255, 215U, 0U };
 static constexpr SDL_Color darkred = { 50U, 0U, 0U };
 static constexpr SDL_Color darkblue = { 0U, 0U, 50U };
 static constexpr SDL_Color darkerblue = { 0U, 0U, 40U };
@@ -27,7 +32,9 @@ Game::Game(void)
 , currentTick(0UL)
 , lastGameHandleTick(0UL)
 , lastHighScoreHandleTick(0UL)
-, highscoresStr("Highscores: #1 Mama (150)   #2 Hanna (122)   #3 Ben (116)")
+, highscoresStr()
+, newHighscoreName()
+, highscoreEntries{ HighscoreEntry{"-", 0}, HighscoreEntry{"-", 0}, HighscoreEntry{"-", 0} }
 , pFontTitle(engine.CreateFont("../res/font/28DaysLater.ttf", 64))
 , pFontButton(engine.CreateFont("../res/font/GretoonHighlight.ttf", 28))
 , pFontScore(engine.CreateFont("../res/font/TradingPostBold.ttf", 36))
@@ -44,6 +51,7 @@ Game::Game(void)
 , pSnakeSkin(engine.CreatePicTexture("../res/gfx/snakeSkin.jpg"))
 , pGameOver(engine.CreatePicTexture("../res/gfx/gameOver.png"))
 , pPlane(engine.CreatePicTexture("../res/gfx/plane.png"))
+, pTrophy(engine.CreatePicTexture("../res/gfx/trophy.png"))
 , pMusic(Mix_LoadMUS("../res/sfx/music.mp3"))
 , pBiteSound(Mix_LoadWAV("../res/sfx/bite.wav"))
 , pPunchSound(Mix_LoadWAV("../res/sfx/punch.mp3"))
@@ -55,12 +63,32 @@ Game::Game(void)
 , titleBackground(pTitleBackground, { 0, 0 })
 , apple(pApple, { 0, 0 }, FIELD_GRID_SCALE)
 , snakeHead(pSnakeHead, { 0, 0 }, { FIELD_GRID_SCALE.x, static_cast<int>(FIELD_GRID_SCALE.y * 163.0 / 104.0) })
-, gameOver(pGameOver, { FIELD_POSITION.x + 60, FIELD_POSITION.y + 200 }, { 800, 480 })
+, gameOver(pGameOver, FIELD_POSITION + Position{ 60, 200 }, { 800, 480 })
 , plane(pPlane, { Engine::SCREEN_WIDTH, 0 }, { 219, 102 })
 , highscores(pHighscores)
+, trophy(pTrophy, gameOver.GetPosition() + Position{ 20, 50 }, { 220, 242 })
 {
   // use current time as seed for random generator
   std::srand(std::time({}));
+
+  std::ifstream file("../highscores.txt");
+  if (file.is_open())
+  {
+    for (HighscoreEntry & highscoreEntry : highscoreEntries)
+    {
+      std::getline(file, highscoreEntry.name, ';');
+      std::string score;
+      std::getline(file, score, '\n');
+      highscoreEntry.score = std::stoul(score);
+    }
+    file.close();
+  }
+  else
+  {
+    // No highscores present, so store default highscores
+    StoreHighscores();
+  }
+  UpdateHighscoreBanner();
 
   Mix_MasterVolume(MIX_MAX_VOLUME);
   Mix_VolumeChunk(pBiteSound, MIX_MAX_VOLUME);
@@ -216,9 +244,38 @@ void Game::HandleEvent(void)
       }
     }
 
+    case SDL_TEXTINPUT:
+      if ((state == State::NewHighscore) && (newHighscoreName.length() < 20U))
+      {
+        newHighscoreName.append(event.text.text);
+      }
+      break;
+
     case SDL_KEYDOWN:
+      std::cout << event.key.keysym.sym << "\n";
       switch (event.key.keysym.sym)
       {
+        case SDLK_BACKSPACE:
+          if ((state == State::NewHighscore) && (!newHighscoreName.empty()))
+          {
+            newHighscoreName.pop_back();
+          }
+          break;
+
+        case SDLK_RETURN:
+          if ((state == State::NewHighscore) && (!newHighscoreName.empty()))
+          {
+            highscoreEntries.back().name = newHighscoreName;
+            highscoreEntries.back().score = scoreCount;
+            std::sort(highscoreEntries.begin(),
+                      highscoreEntries.end(),
+                      [](HighscoreEntry const & a, HighscoreEntry const & b){ return a.score > b.score; });
+            StoreHighscores();
+            UpdateHighscoreBanner();
+            state = State::GameOver;
+          }
+          break;
+
         case SDLK_UP:
           pressedDirection = Direction::Up;
           break;
@@ -295,7 +352,15 @@ void Game::HandleGame(void)
     {
       (void)Mix_PlayChannel(-1, pPunchSound, 0);
       snakeHead.SetTexture(pSnakeHeadDead);
-      state = State::GameOver;
+      if (scoreCount > highscoreEntries.back().score)
+      {
+        newHighscoreName.clear();
+        state = State::NewHighscore;
+      }
+      else
+      {
+        state = State::GameOver;
+      }
     }
     else
     {
@@ -361,6 +426,11 @@ void Game::Render(void)
   {
     engine.Render(gameOver);
   }
+
+  if (state == State::NewHighscore)
+  {
+    RenderInputForNewHighscore();
+  }
 }
 
 
@@ -390,4 +460,45 @@ void Game::RenderPlane(void)
                     darkred);
 
   engine.Render(highscores);
+}
+
+
+void Game::RenderInputForNewHighscore(void)
+{
+  engine.RenderRect(gameOver.GetPosition() - Position{ 10, 10 }, gameOver.GetScale() + Position{ 20, 20 }, gold);
+  engine.RenderRect(gameOver.GetPosition(), gameOver.GetScale(), black);
+  engine.Render(trophy);
+  engine.RenderText(gameOver.GetPosition() + Position{300,50}, "New highscore!", pFontScore, white);
+  engine.RenderText(gameOver.GetPosition() + Position{300,200}, "Enter name:", pFontScore, white);
+  engine.RenderText(gameOver.GetPosition() + Position{300,300}, newHighscoreName.c_str(), pFontScore, gold);
+}
+
+
+void Game::UpdateHighscoreBanner(void)
+{
+  engine.DestroyTexture(pHighscores);
+  highscoresStr = "Highscores:  ";
+  for (uint8_t i = 0U; i < highscoreEntries.size(); ++i)
+  {
+    highscoresStr.append("#");
+    highscoresStr.append(std::to_string(i + 1U));
+    highscoresStr.append("  ");
+    highscoresStr.append(highscoreEntries[i].name);
+    highscoresStr.append(" (");
+    highscoresStr.append(std::to_string(highscoreEntries[i].score));
+    highscoresStr.append(")    ");
+  }
+  pHighscores = engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, white);
+  highscores.SetTexture(pHighscores);
+  highscores.SetScale(highscores.GetTextureSize());
+}
+
+
+void Game::StoreHighscores()
+{
+  std::ofstream file("../highscores.txt");
+  for (auto highscoreEntry : highscoreEntries)
+  {
+    file << highscoreEntry.name << ";" << highscoreEntry.score << "\n";
+  }
 }

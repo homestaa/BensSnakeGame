@@ -6,4 +6,6 @@ struct Position
   int y;
 
   bool operator==(Position const & other) const;
+  Position operator+(Position const & other) const;
+  Position operator-(Position const & other) const;
 };

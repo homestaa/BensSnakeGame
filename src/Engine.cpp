@@ -58,6 +58,9 @@ Engine::~Engine(void)
   // Destroy window
   SDL_DestroyWindow(pWindow);
 
+  // Quit SDL_ttf
+  TTF_Quit();
+
   // Quit SDL
   SDL_Quit();
 }

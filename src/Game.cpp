@@ -512,4 +512,5 @@ void Game::StoreHighscores()
   {
     file << highscoreEntry.name << ";" << highscoreEntry.score << "\n";
   }
+  file.close();
 }

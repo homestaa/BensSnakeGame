@@ -207,8 +207,25 @@ void Game::RenderBackground(void)
 
 void Game::RandomApplePosition(void)
 {
-  int const xRandom = std::rand() % FIELD_WIDTH;
-  int const yRandom = std::rand() % FIELD_HEIGHT;
+  int xRandom = std::rand() % FIELD_WIDTH;
+  int yRandom = std::rand() % FIELD_HEIGHT;
+  Position const randomPosition = {xRandom, yRandom};
+  while (field[xRandom][yRandom] == true)
+  {
+    // Avoid apple position inside snake, so find next free position
+    xRandom = (xRandom < FIELD_WIDTH - 1) ? xRandom + 1
+                                          : 0;
+    yRandom = (xRandom != 0)               ? yRandom
+            : (yRandom < FIELD_HEIGHT - 1) ? yRandom + 1
+                                           : 0;
+
+    if (randomPosition == Position{xRandom, yRandom})
+    {
+      // No free position found, snake everywhere
+      break;
+    }
+  }
+
   apple.SetPosition({ FIELD_POSITION.x + (xRandom * FIELD_GRID_SCALE.x),
                       FIELD_POSITION.y + (yRandom * FIELD_GRID_SCALE.y) });
 }

@@ -107,7 +107,7 @@ private:
   Entity highscores;
   Entity trophy;
 
-  void Reset(void);
+  void Restart(void);
   void AddSnakeHead(Position const fieldpos);
   void RemoveSnakeTail(void);
   void RenderBackground(void);
@@ -123,4 +123,5 @@ private:
   void RenderInputForNewHighscore(void);
   void UpdateHighscoreBanner(void);
   void StoreHighscores();
+  void ApplyNewHighscore(void);
 };

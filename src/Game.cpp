@@ -155,7 +155,7 @@ void Game::Run(void)
 }
 
 
-void Game::Reset(void)
+void Game::Restart(void)
 {
   memset(field, 0, sizeof(field));
   snake.clear();
@@ -259,13 +259,21 @@ void Game::HandleEvent(void)
       };
       if (exit.IsOnPosition(mousePos))
       {
+        if ((state == State::NewHighscore) && (!newHighscoreName.empty()))
+        {
+          ApplyNewHighscore();
+        }
         quit = true;
         break;
       }
       if (start.IsOnPosition(mousePos))
       {
+        if ((state == State::NewHighscore) && (!newHighscoreName.empty()))
+        {
+          ApplyNewHighscore();
+        }
         (void)Mix_PlayChannel(-1, pHornSound, 0);
-        Reset();
+        Restart();
         state = State::Running;
         break;
       }
@@ -292,13 +300,7 @@ void Game::HandleEvent(void)
         case SDLK_RETURN:
           if ((state == State::NewHighscore) && (!newHighscoreName.empty()))
           {
-            highscoreEntries.back().name = newHighscoreName;
-            highscoreEntries.back().score = scoreCount;
-            std::sort(highscoreEntries.begin(),
-                      highscoreEntries.end(),
-                      [](HighscoreEntry const & a, HighscoreEntry const & b){ return a.score > b.score; });
-            StoreHighscores();
-            UpdateHighscoreBanner();
+            ApplyNewHighscore();
             state = State::GameOver;
           }
           break;
@@ -530,4 +532,15 @@ void Game::StoreHighscores()
     file << highscoreEntry.name << ";" << highscoreEntry.score << "\n";
   }
   file.close();
+}
+
+void Game::ApplyNewHighscore(void)
+{
+  highscoreEntries.back().name = newHighscoreName;
+  highscoreEntries.back().score = scoreCount;
+  std::sort(highscoreEntries.begin(),
+            highscoreEntries.end(),
+            [](HighscoreEntry const & a, HighscoreEntry const & b){ return a.score > b.score; });
+  StoreHighscores();
+  UpdateHighscoreBanner();
 }

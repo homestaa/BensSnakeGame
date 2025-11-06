@@ -181,6 +181,20 @@ void Engine::RenderRect(Position const position, Position const scale, SDL_Color
 }
 
 
+void Engine::RenderGeometry(std::vector<Position> const & positions, SDL_Color const & color)
+{
+  std::vector<SDL_Vertex> verts(positions.size());
+  for (Position const & position : positions)
+  {
+    verts.push_back(SDL_Vertex{ SDL_FPoint{ static_cast<float>(position.x), static_cast<float>(position.y) },
+                                color,
+                                SDL_FPoint{ 0 } });
+  }
+
+  SDL_RenderGeometry( pRenderer, nullptr, verts.data(), verts.size(), nullptr, 0 );
+}
+
+
 void Engine::UpdateScreen(void)
 {
   SDL_RenderPresent(pRenderer);

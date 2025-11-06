@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <vector>
 
 typedef struct SDL_Window SDL_Window;
 typedef struct SDL_Renderer SDL_Renderer;
@@ -31,6 +32,7 @@ public:
                   TTF_Font* pFont,
                   SDL_Color const & textColor);
   void RenderRect(Position const position, Position const scale, SDL_Color const & color);
+  void RenderGeometry(std::vector<Position> const & positions, SDL_Color const & color);
   void UpdateScreen(void);
 
 private:

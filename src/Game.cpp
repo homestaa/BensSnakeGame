@@ -485,9 +485,26 @@ void Game::RenderPlane(void)
 {
   engine.Render(plane);
 
-  engine.RenderRect({ plane.GetPosition().x + plane.GetScale().x, plane.GetPosition().y + 26 },
-                    { highscores.GetScale().x + 20, 72 },
-                    gold);
+  SDL_Color constexpr bannerColor = gold;
+  Position const bannerPos = { plane.GetPosition().x + plane.GetScale().x, plane.GetPosition().y + 26 };
+  Position const bannerScale = { highscores.GetScale().x + 20, 72 };
+  engine.RenderRect(bannerPos, bannerScale, bannerColor);
+
+  std::vector<Position> const bannerTailTop =
+  {{
+    { bannerPos.x + bannerScale.x,      bannerPos.y },
+    { bannerPos.x + bannerScale.x + 50, bannerPos.y },
+    { bannerPos.x + bannerScale.x,      bannerPos.y + bannerScale.y / 2 },
+  }};
+  engine.RenderGeometry(bannerTailTop, bannerColor);
+
+  std::vector<Position> const bannerTailBottom =
+  {{
+    { bannerPos.x + bannerScale.x,      bannerPos.y + bannerScale.y / 2 },
+    { bannerPos.x + bannerScale.x + 50, bannerPos.y + bannerScale.y },
+    { bannerPos.x + bannerScale.x,      bannerPos.y + bannerScale.y },
+  }};
+  engine.RenderGeometry(bannerTailBottom, bannerColor);
 
   engine.Render(highscores);
 }

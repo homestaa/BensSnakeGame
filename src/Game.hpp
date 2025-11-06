@@ -41,8 +41,8 @@ private:
     uint16_t score;
   };
 
-  static int constexpr FIELD_WIDTH = 40;
-  static int constexpr FIELD_HEIGHT = 40;
+  static int constexpr FIELD_WIDTH = 19;
+  static int constexpr FIELD_HEIGHT = 19;
   static Position constexpr FIELD_POSITION = {140, 100};
   static Position constexpr FIELD_SCALE = { Engine::SCREEN_HEIGHT - FIELD_POSITION.y,
                                             Engine::SCREEN_HEIGHT - FIELD_POSITION.y };

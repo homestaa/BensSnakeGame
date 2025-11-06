@@ -39,6 +39,7 @@ Game::Game(void)
 , pFontButton(engine.CreateFont("../res/font/GretoonHighlight.ttf", 28))
 , pFontScore(engine.CreateFont("../res/font/TradingPostBold.ttf", 36))
 , pFontHighscores(engine.CreateFont("../res/font/FromCartoonBlocks.ttf", 36))
+, pFontStandard(engine.CreateFont("../res/font/Montserrat.ttf", 36))
 , pBensGame(engine.CreateTextTexture("Bens Snake Game", pFontTitle, black))
 , pStart(engine.CreateTextTexture("Start", pFontButton, red))
 , pExit(engine.CreateTextTexture("Exit", pFontButton, red))
@@ -56,6 +57,7 @@ Game::Game(void)
 , pBiteSound(Mix_LoadWAV("../res/sfx/bite.wav"))
 , pPunchSound(Mix_LoadWAV("../res/sfx/punch.mp3"))
 , pHornSound(Mix_LoadWAV("../res/sfx/horn.mp3"))
+, pCheerSound(Mix_LoadWAV("../res/sfx/cheering.mp3"))
 , bensGame(pBensGame, { 20, 20 })
 , start(pStart, { 20, 100 })
 , exit(pExit, { 20, 160 })
@@ -94,6 +96,7 @@ Game::Game(void)
   Mix_VolumeChunk(pBiteSound, MIX_MAX_VOLUME);
   Mix_VolumeChunk(pPunchSound, MIX_MAX_VOLUME / 2);
   Mix_VolumeChunk(pHornSound, MIX_MAX_VOLUME / 2);
+  Mix_VolumeChunk(pCheerSound, MIX_MAX_VOLUME);
   Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
   Mix_PlayMusic(pMusic, -1);
 }
@@ -101,6 +104,7 @@ Game::Game(void)
 
 Game::~Game(void)
 {
+  Mix_FreeChunk(pCheerSound);
   Mix_FreeChunk(pHornSound);
   Mix_FreeChunk(pPunchSound);
   Mix_FreeChunk(pBiteSound);
@@ -245,7 +249,7 @@ void Game::HandleEvent(void)
     }
 
     case SDL_TEXTINPUT:
-      if ((state == State::NewHighscore) && (newHighscoreName.length() < 20U))
+      if ((state == State::NewHighscore) && (newHighscoreName.length() < 16U))
       {
         newHighscoreName.append(event.text.text);
       }
@@ -356,6 +360,7 @@ void Game::HandleGame(void)
       {
         newHighscoreName.clear();
         state = State::NewHighscore;
+        (void)Mix_PlayChannel(-1, pCheerSound, 0);
       }
       else
       {
@@ -366,7 +371,7 @@ void Game::HandleGame(void)
     {
       AddSnakeHead(snakeHeadpos);
       if (apple.IsOnPosition({ FIELD_POSITION.x + (snakeHeadpos.x * FIELD_GRID_SCALE.x) + (FIELD_GRID_SCALE.x / 2),
-                                FIELD_POSITION.y + (snakeHeadpos.y * FIELD_GRID_SCALE.y) + (FIELD_GRID_SCALE.x / 2),}))
+                               FIELD_POSITION.y + (snakeHeadpos.y * FIELD_GRID_SCALE.y) + (FIELD_GRID_SCALE.x / 2),}))
       {
         // Eat apple
         (void)Mix_PlayChannel(-1, pBiteSound, 0);
@@ -457,7 +462,7 @@ void Game::RenderPlane(void)
 
   engine.RenderRect({ plane.GetPosition().x + plane.GetScale().x, plane.GetPosition().y + 26 },
                     { highscores.GetScale().x + 20, 72 },
-                    darkred);
+                    gold);
 
   engine.Render(highscores);
 }
@@ -468,9 +473,9 @@ void Game::RenderInputForNewHighscore(void)
   engine.RenderRect(gameOver.GetPosition() - Position{ 10, 10 }, gameOver.GetScale() + Position{ 20, 20 }, gold);
   engine.RenderRect(gameOver.GetPosition(), gameOver.GetScale(), black);
   engine.Render(trophy);
-  engine.RenderText(gameOver.GetPosition() + Position{300,50}, "New highscore!", pFontScore, white);
-  engine.RenderText(gameOver.GetPosition() + Position{300,200}, "Enter name:", pFontScore, white);
-  engine.RenderText(gameOver.GetPosition() + Position{300,300}, newHighscoreName.c_str(), pFontScore, gold);
+  engine.RenderText(gameOver.GetPosition() + Position{300,50}, "New highscore!", pFontStandard, white);
+  engine.RenderText(gameOver.GetPosition() + Position{300,200}, "Enter name:", pFontStandard, white);
+  engine.RenderText(gameOver.GetPosition() + Position{300,300}, newHighscoreName.c_str(), pFontStandard, gold);
 }
 
 
@@ -488,7 +493,7 @@ void Game::UpdateHighscoreBanner(void)
     highscoresStr.append(std::to_string(highscoreEntries[i].score));
     highscoresStr.append(")    ");
   }
-  pHighscores = engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, white);
+  pHighscores = engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, red);
   highscores.SetTexture(pHighscores);
   highscores.SetScale(highscores.GetTextureSize());
 }

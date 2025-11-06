@@ -70,6 +70,7 @@ private:
   TTF_Font* pFontButton;
   TTF_Font* pFontScore;
   TTF_Font* pFontHighscores;
+  TTF_Font* pFontStandard;
 
   // Textures
   SDL_Texture* pBensGame;
@@ -91,6 +92,7 @@ private:
   Mix_Chunk* pBiteSound;
   Mix_Chunk* pPunchSound;
   Mix_Chunk* pHornSound;
+  Mix_Chunk* pCheerSound;
 
   // Entities
   Entity bensGame;

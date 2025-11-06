@@ -16,7 +16,6 @@ static constexpr SDL_Color black = { 0U, 0U, 0U };
 static constexpr SDL_Color white = { 255U, 255U, 255U };
 static constexpr SDL_Color red = { 180U, 0U, 0U };
 static constexpr SDL_Color gold = { 255, 215U, 0U };
-static constexpr SDL_Color darkred = { 50U, 0U, 0U };
 static constexpr SDL_Color darkblue = { 0U, 0U, 50U };
 static constexpr SDL_Color darkerblue = { 0U, 0U, 40U };
 
@@ -81,7 +80,14 @@ Game::Game(void)
       std::getline(file, highscoreEntry.name, ';');
       std::string score;
       std::getline(file, score, '\n');
-      highscoreEntry.score = std::stoul(score);
+      try
+      {
+        highscoreEntry.score = std::stoul(score);
+      }
+      catch (...)
+      {
+        highscoreEntry.score = 0U;
+      }
     }
     file.close();
   }

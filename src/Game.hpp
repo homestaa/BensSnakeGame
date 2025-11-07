@@ -6,6 +6,7 @@
 #include <deque>
 #include <string>
 #include <array>
+#include <cstdint>
 
 typedef struct _Mix_Music Mix_Music;
 typedef struct Mix_Chunk Mix_Chunk;
@@ -124,4 +125,5 @@ private:
   void UpdateHighscoreBanner(void);
   void StoreHighscores();
   void ApplyNewHighscore(void);
+  void ApplyStoredHighscores(void);
 };

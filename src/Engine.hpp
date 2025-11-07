@@ -1,10 +1,11 @@
 #pragma once
 
-#include <SDL.h>
 #include <vector>
 
 typedef struct SDL_Window SDL_Window;
 typedef struct SDL_Renderer SDL_Renderer;
+typedef struct SDL_Texture SDL_Texture;
+typedef struct SDL_Color SDL_Color;
 typedef struct _TTF_Font TTF_Font;
 
 class Position;

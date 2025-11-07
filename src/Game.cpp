@@ -2,15 +2,10 @@
 #include "Engine.hpp"
 #include "Position.hpp"
 #include <SDL.h>
-#include <SDL_events.h>
-#include <SDL_keyboard.h>
-#include <SDL_keycode.h>
 #include <SDL_mixer.h>
 #include <algorithm>
 #include <ctime>
 #include <fstream>
-#include <iostream>
-#include <string>
 
 static constexpr SDL_Color black = { 0U, 0U, 0U };
 static constexpr SDL_Color white = { 255U, 255U, 255U };
@@ -72,31 +67,7 @@ Game::Game(void)
   // use current time as seed for random generator
   std::srand(std::time({}));
 
-  std::ifstream file("../highscores.txt");
-  if (file.is_open())
-  {
-    for (HighscoreEntry & highscoreEntry : highscoreEntries)
-    {
-      std::getline(file, highscoreEntry.name, ';');
-      std::string score;
-      std::getline(file, score, '\n');
-      try
-      {
-        highscoreEntry.score = std::stoul(score);
-      }
-      catch (...)
-      {
-        highscoreEntry.score = 0U;
-      }
-    }
-    file.close();
-  }
-  else
-  {
-    // No highscores present, so store default highscores
-    StoreHighscores();
-  }
-  UpdateHighscoreBanner();
+  ApplyStoredHighscores();
 
   Mix_MasterVolume(MIX_MAX_VOLUME);
   Mix_VolumeChunk(pBiteSound, MIX_MAX_VOLUME);
@@ -287,7 +258,6 @@ void Game::HandleEvent(void)
       break;
 
     case SDL_KEYDOWN:
-      std::cout << event.key.keysym.sym << "\n";
       switch (event.key.keysym.sym)
       {
         case SDLK_BACKSPACE:
@@ -559,5 +529,35 @@ void Game::ApplyNewHighscore(void)
             highscoreEntries.end(),
             [](HighscoreEntry const & a, HighscoreEntry const & b){ return a.score > b.score; });
   StoreHighscores();
+  UpdateHighscoreBanner();
+}
+
+
+void Game::ApplyStoredHighscores(void)
+{
+  std::ifstream file("../highscores.txt");
+  if (file.is_open())
+  {
+    for (HighscoreEntry & highscoreEntry : highscoreEntries)
+    {
+      std::getline(file, highscoreEntry.name, ';');
+      std::string score;
+      std::getline(file, score, '\n');
+      try
+      {
+        highscoreEntry.score = std::stoul(score);
+      }
+      catch (...)
+      {
+        highscoreEntry.score = 0U;
+      }
+    }
+    file.close();
+  }
+  else
+  {
+    // No highscores present, so store default highscores
+    StoreHighscores();
+  }
   UpdateHighscoreBanner();
 }

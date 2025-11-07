@@ -37,7 +37,7 @@ For Debian distributions, these libraries can be installed like this.
 apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
 ```
 
-### Build the game
+## Build the game
 
 With all required tools and libraries installed, the build can be executed like this.
 
@@ -46,7 +46,7 @@ cmake -B build
 cmake --build build
 ```
 
-### Run the game
+## Run the game
 
 After the game is built successfully, it can be started like this.
 

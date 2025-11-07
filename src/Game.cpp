@@ -513,7 +513,7 @@ void Game::UpdateHighscoreBanner(void)
 
 void Game::StoreHighscores()
 {
-  std::ofstream file("../highscores.txt");
+  std::ofstream file(HIGHSCORE_PATH);
   for (auto highscoreEntry : highscoreEntries)
   {
     file << highscoreEntry.name << ";" << highscoreEntry.score << "\n";
@@ -535,7 +535,7 @@ void Game::ApplyNewHighscore(void)
 
 void Game::ApplyStoredHighscores(void)
 {
-  std::ifstream file("../highscores.txt");
+  std::ifstream file(HIGHSCORE_PATH);
   if (file.is_open())
   {
     for (HighscoreEntry & highscoreEntry : highscoreEntries)

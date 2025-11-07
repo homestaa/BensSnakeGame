@@ -50,6 +50,7 @@ private:
   static Position constexpr FIELD_GRID_SCALE = {FIELD_SCALE.x / FIELD_WIDTH, FIELD_SCALE.y / FIELD_HEIGHT};
   static double constexpr SCORE_ANGLE = 10.0;
   static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
+  static char constexpr HIGHSCORE_PATH[] = "./highscores.txt";
 
   Engine engine;
   State state;

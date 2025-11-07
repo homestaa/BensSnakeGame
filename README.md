@@ -34,7 +34,7 @@ apt install cmake
 For Debian distributions, these libraries can be installed like this.
 
 ```
-apt install libsdl2-dev libsdl-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
+apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
 ```
 
 ### Build the game

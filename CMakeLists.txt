@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 
-project(Bens-Game)
+project(Bens-Snake-Game)
 
 add_definitions("-Wall" "-g")
 

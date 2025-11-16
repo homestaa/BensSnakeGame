@@ -44,19 +44,19 @@ private:
 
   static int constexpr FIELD_WIDTH = 19;
   static int constexpr FIELD_HEIGHT = 19;
-  static Position constexpr FIELD_POSITION = {140, 100};
-  static Position constexpr FIELD_SCALE = { Engine::SCREEN_HEIGHT - FIELD_POSITION.y,
-                                            Engine::SCREEN_HEIGHT - FIELD_POSITION.y };
-  static Position constexpr FIELD_GRID_SCALE = {FIELD_SCALE.x / FIELD_WIDTH, FIELD_SCALE.y / FIELD_HEIGHT};
   static double constexpr SCORE_ANGLE = 10.0;
   static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
   static char constexpr HIGHSCORE_PATH[] = "./highscores.txt";
 
   Engine engine;
+  Position resolution;
   State state;
   bool quit;
   uint16_t scoreCount;
   bool field[FIELD_WIDTH][FIELD_HEIGHT];
+  Position fieldPosition;
+  Position fieldScale;
+  Position fieldGridScale;
   std::deque<Position> snake;
   Direction snakeDirection;
   Direction pressedDirection;
@@ -80,6 +80,8 @@ private:
   SDL_Texture* pExit;
   SDL_Texture* pScore;
   SDL_Texture* pHighscores;
+  SDL_Texture* pNewHighScore;
+  SDL_Texture* pEnterName;
   SDL_Texture* pTitleBackground;
   SDL_Texture* pApple;
   SDL_Texture* pSnakeHead;
@@ -108,6 +110,8 @@ private:
   Entity plane;
   Entity highscores;
   Entity trophy;
+  Entity newHighscore;
+  Entity enterName;
 
   void Restart(void);
   void AddSnakeHead(Position const fieldpos);
@@ -127,4 +131,7 @@ private:
   void StoreHighscores();
   void ApplyNewHighscore(void);
   void ApplyStoredHighscores(void);
+  Position ConvertFullHd(Position const & fhdPosition);
+  int ConvertFullHdWidth(int const fhdWidth);
+  int ConvertFullHdHeight(int const fhdHeight);
 };

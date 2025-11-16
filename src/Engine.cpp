@@ -1,13 +1,13 @@
 #include "Engine.hpp"
-#include "Position.hpp"
 #include "Entity.hpp"
+#include "Position.hpp"
 
 #include <SDL_error.h>
 #include <SDL_image.h>
 #include <SDL_render.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
-#include <iostream>
+#include <SDL_video.h>
 #include <stdexcept>
 
 Engine::Engine(void)
@@ -31,14 +31,11 @@ Engine::Engine(void)
   pWindow= SDL_CreateWindow("Ben's Game",
                             SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED,
-                            SCREEN_WIDTH,
-                            SCREEN_HEIGHT,
-                            SDL_WINDOW_SHOWN);
+                            SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOW_FULLSCREEN);
   if (pWindow == nullptr)
     throw std::runtime_error("Game::Game: Window could not be created.");
-
-  if (SDL_SetWindowFullscreen(pWindow, SDL_WINDOW_FULLSCREEN) < 0)
-    throw std::runtime_error("Game::Game: Window Fullscreen failed.");
 
   // Create renderer
   pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
@@ -76,7 +73,7 @@ SDL_Texture* Engine::CreatePicTexture(char const * const pFile)
 }
 
 
-SDL_Texture* Engine::CreateTextTexture(char const * const pText, TTF_Font* font, SDL_Color textColor)
+SDL_Texture* Engine::CreateTextTexture(char const * const pText, TTF_Font* const font, SDL_Color const textColor)
 {
   SDL_Surface* pSurface = TTF_RenderText_Blended( font, pText, textColor);
   SDL_Texture* pTexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
@@ -96,7 +93,6 @@ TTF_Font* Engine::CreateFont(char const * const pFile, int const size)
   TTF_Font* pFont = TTF_OpenFont(pFile, size);
   if (pFont == nullptr)
   {
-    std::cout << "SDL-Error: " << SDL_GetError() << "\n";
     throw std::runtime_error("Engine::CreateFont: Failed to load.");
   }
 
@@ -157,7 +153,7 @@ void Engine::Render(Position const & position, Position const & scale, SDL_Textu
 
 void Engine::RenderText(Position const & position,
                         char const * const pText,
-                        TTF_Font* pFont,
+                        TTF_Font* const pFont,
                         SDL_Color const & textColor)
 {
   SDL_Texture* pTexture = CreateTextTexture(pText, pFont, textColor);
@@ -198,4 +194,12 @@ void Engine::RenderGeometry(std::vector<Position> const & positions, SDL_Color c
 void Engine::UpdateScreen(void)
 {
   SDL_RenderPresent(pRenderer);
+}
+
+
+Position Engine::GetResolution(void) const
+{
+  SDL_DisplayMode mode;
+  SDL_GetCurrentDisplayMode(0, &mode);
+  return { mode.w, mode.h };
 }

@@ -1,11 +1,13 @@
 #include "Game.hpp"
 #include "Engine.hpp"
+#include "Entity.hpp"
 #include "Position.hpp"
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <algorithm>
 #include <ctime>
 #include <fstream>
+#include <iostream>
 
 static constexpr SDL_Color black = { 0U, 0U, 0U };
 static constexpr SDL_Color white = { 255U, 255U, 255U };
@@ -16,10 +18,14 @@ static constexpr SDL_Color darkerblue = { 0U, 0U, 40U };
 
 Game::Game(void)
 : engine()
+, resolution(engine.GetResolution())
 , state(State::Init)
 , quit(false)
 , scoreCount(0U)
 , field{ {0}, {0} }
+, fieldPosition(ConvertFullHd({ 140, 100 }))
+, fieldScale(ConvertFullHd({ 980, 980 }))
+, fieldGridScale{ fieldScale.x / FIELD_WIDTH, fieldScale.y / FIELD_HEIGHT }
 , snake()
 , snakeDirection(Direction::Up)
 , pressedDirection(Direction::Up)
@@ -39,6 +45,8 @@ Game::Game(void)
 , pExit(engine.CreateTextTexture("Exit", pFontButton, red))
 , pScore(engine.CreateTextTexture("x  0", pFontScore, black))
 , pHighscores(engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, white))
+, pNewHighScore(engine.CreateTextTexture("New highscore!", pFontStandard, white))
+, pEnterName(engine.CreateTextTexture("Enter name:", pFontStandard, white))
 , pTitleBackground(engine.CreatePicTexture("./res/gfx/titleBackground.jpg"))
 , pApple(engine.CreatePicTexture("./res/gfx/apple.png"))
 , pSnakeHead(engine.CreatePicTexture("./res/gfx/snakeHead.png"))
@@ -52,17 +60,19 @@ Game::Game(void)
 , pPunchSound(Mix_LoadWAV("./res/sfx/punch.mp3"))
 , pHornSound(Mix_LoadWAV("./res/sfx/horn.mp3"))
 , pCheerSound(Mix_LoadWAV("./res/sfx/cheering.mp3"))
-, bensGame(pBensGame, { 20, 20 })
-, start(pStart, { 20, 100 })
-, exit(pExit, { 20, 160 })
-, score(pScore, { 1700, 712 }, { 0, 0 }, SCORE_ANGLE)
-, titleBackground(pTitleBackground, { 0, 0 })
-, apple(pApple, { 0, 0 }, FIELD_GRID_SCALE)
-, snakeHead(pSnakeHead, { 0, 0 }, { FIELD_GRID_SCALE.x, static_cast<int>(FIELD_GRID_SCALE.y * 163.0 / 104.0) })
-, gameOver(pGameOver, FIELD_POSITION + Position{ 60, 200 }, { 800, 480 })
-, plane(pPlane, { Engine::SCREEN_WIDTH, 0 }, { 219, 102 })
+, bensGame(pBensGame, ConvertFullHd({ 20, 20 }))
+, start(pStart, ConvertFullHd({ 20, 100 }))
+, exit(pExit, ConvertFullHd({ 20, 160 }))
+, score(pScore, ConvertFullHd({ 1700, 712 }), { 0, 0 }, SCORE_ANGLE)
+, titleBackground(pTitleBackground, { 0, 0 }, ConvertFullHd({ 1920, 1080 }))
+, apple(pApple, { 0, 0 }, fieldGridScale)
+, snakeHead(pSnakeHead, { 0, 0 }, { fieldGridScale.x, static_cast<int>(fieldGridScale.y * 163.0 / 104.0) })
+, gameOver(pGameOver, fieldPosition + ConvertFullHd({ 60, 200 }), ConvertFullHd({ 800, 480 }))
+, plane(pPlane, { resolution.x, 0 }, ConvertFullHd({ 219, 102 }))
 , highscores(pHighscores)
-, trophy(pTrophy, gameOver.GetPosition() + Position{ 20, 50 }, { 220, 242 })
+, trophy(pTrophy, gameOver.GetPosition() + ConvertFullHd({ 20, 50 }), ConvertFullHd({ 220, 242 }))
+, newHighscore(pNewHighScore, gameOver.GetPosition() + ConvertFullHd({ 300, 50 }))
+, enterName(pEnterName, gameOver.GetPosition() + ConvertFullHd({ 300, 200 }))
 {
   // use current time as seed for random generator
   std::srand(std::time({}));
@@ -76,6 +86,15 @@ Game::Game(void)
   Mix_VolumeChunk(pCheerSound, MIX_MAX_VOLUME);
   Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
   Mix_PlayMusic(pMusic, -1);
+
+  // Adjust font scale relating to resolution
+  std::cout << "resolution: " << resolution.x << " x " << resolution.y << "\n";
+  bensGame.SetScale(ConvertFullHd(bensGame.GetTextureSize()));
+  start.SetScale(ConvertFullHd(start.GetTextureSize()));
+  exit.SetScale(ConvertFullHd(exit.GetTextureSize()));
+  score.SetScale(ConvertFullHd(score.GetTextureSize()));
+  newHighscore.SetScale(ConvertFullHd(newHighscore.GetTextureSize()));
+  enterName.SetScale(ConvertFullHd(enterName.GetTextureSize()));
 }
 
 
@@ -87,17 +106,24 @@ Game::~Game(void)
   Mix_FreeChunk(pBiteSound);
   Mix_FreeMusic(pMusic);
 
+  engine.DestroyTexture(pTrophy);
+  engine.DestroyTexture(pPlane);
   engine.DestroyTexture(pGameOver);
   engine.DestroyTexture(pSnakeSkin);
   engine.DestroyTexture(pSnakeHeadDead);
   engine.DestroyTexture(pSnakeHead);
   engine.DestroyTexture(pApple);
   engine.DestroyTexture(pTitleBackground);
+  engine.DestroyTexture(pEnterName);
+  engine.DestroyTexture(pNewHighScore);
+  engine.DestroyTexture(pHighscores);
   engine.DestroyTexture(pScore);
   engine.DestroyTexture(pExit);
   engine.DestroyTexture(pStart);
   engine.DestroyTexture(pBensGame);
 
+  engine.DestroyFont(pFontStandard);
+  engine.DestroyFont(pFontHighscores);
   engine.DestroyFont(pFontScore);
   engine.DestroyFont(pFontButton);
   engine.DestroyFont(pFontTitle);
@@ -151,8 +177,8 @@ void Game::Restart(void)
 void Game::AddSnakeHead(Position const fieldpos)
 {
   snake.push_front(fieldpos);
-  snakeHead.SetPosition({ FIELD_POSITION.x + fieldpos.x * FIELD_GRID_SCALE.x,
-                          FIELD_POSITION.y + fieldpos.y * FIELD_GRID_SCALE.y });
+  snakeHead.SetPosition({ fieldPosition.x + fieldpos.x * fieldGridScale.x,
+                          fieldPosition.y + fieldpos.y * fieldGridScale.y });
   field[fieldpos.x][fieldpos.y] = true;
 }
 
@@ -171,7 +197,7 @@ void Game::RenderBackground(void)
   engine.Render(start);
   engine.Render(exit);
   engine.Render(bensGame);
-  engine.Render({ 1640, 695 }, { 50, 50 }, pApple, SCORE_ANGLE);
+  engine.Render(ConvertFullHd({ 1640, 695 }), ConvertFullHd({ 50, 50 }), pApple, SCORE_ANGLE);
   engine.Render(score);
 }
 
@@ -197,8 +223,8 @@ void Game::RandomApplePosition(void)
     }
   }
 
-  apple.SetPosition({ FIELD_POSITION.x + (xRandom * FIELD_GRID_SCALE.x),
-                      FIELD_POSITION.y + (yRandom * FIELD_GRID_SCALE.y) });
+  apple.SetPosition({ fieldPosition.x + (xRandom * fieldGridScale.x),
+                      fieldPosition.y + (yRandom * fieldGridScale.y) });
 }
 
 
@@ -208,7 +234,7 @@ void Game::UpdateScoreDisplay(void)
   engine.DestroyTexture(pScore);
   pScore = engine.CreateTextTexture(scoreString.c_str(), pFontScore, black);
   score.SetTexture(pScore);
-  score.SetScale(score.GetTextureSize());
+  score.SetScale(ConvertFullHd(score.GetTextureSize()));
 }
 
 
@@ -365,8 +391,8 @@ void Game::HandleGame(void)
     else
     {
       AddSnakeHead(snakeHeadpos);
-      if (apple.IsOnPosition({ FIELD_POSITION.x + (snakeHeadpos.x * FIELD_GRID_SCALE.x) + (FIELD_GRID_SCALE.x / 2),
-                               FIELD_POSITION.y + (snakeHeadpos.y * FIELD_GRID_SCALE.y) + (FIELD_GRID_SCALE.x / 2),}))
+      if (apple.IsOnPosition({ fieldPosition.x + (snakeHeadpos.x * fieldGridScale.x) + (fieldGridScale.x / 2),
+                               fieldPosition.y + (snakeHeadpos.y * fieldGridScale.y) + (fieldGridScale.x / 2),}))
       {
         // Eat apple
         (void)Mix_PlayChannel(-1, pBiteSound, 0);
@@ -392,17 +418,17 @@ void Game::RenderField(void)
       if (field[column][line] == true)
       {
         // Draw Snake
-        engine.Render({ FIELD_POSITION.x + (column * FIELD_GRID_SCALE.x),
-                        FIELD_POSITION.y + (line * FIELD_GRID_SCALE.y)},
-                      FIELD_GRID_SCALE,
+        engine.Render({ fieldPosition.x + (column * fieldGridScale.x),
+                        fieldPosition.y + (line * fieldGridScale.y)},
+                      fieldGridScale,
                       pSnakeSkin);
       }
       else
       {
         // Draw Grid
-        engine.RenderRect({ FIELD_POSITION.x + (column * FIELD_GRID_SCALE.x),
-                            FIELD_POSITION.y + (line * FIELD_GRID_SCALE.y)},
-                          FIELD_GRID_SCALE,
+        engine.RenderRect({ fieldPosition.x + (column * fieldGridScale.x),
+                            fieldPosition.y + (line * fieldGridScale.y)},
+                          fieldGridScale,
                           (((line + column) % 2) == 0) ? darkblue : darkerblue);
       }
     }
@@ -443,10 +469,11 @@ void Game::HandlePlanePosition(void)
 
     plane.SetPosition({ (plane.GetPosition().x >= -plane.GetScale().x - highscores.GetScale().x - 500)
                           ? plane.GetPosition().x - 1
-                          : Engine::SCREEN_WIDTH,
+                          : resolution.x,
                         plane.GetPosition().y });
 
-    highscores.SetPosition({ plane.GetPosition().x + plane.GetScale().x, plane.GetPosition().y + 45 });
+    highscores.SetPosition({ plane.GetPosition().x + plane.GetScale().x,
+                             plane.GetPosition().y + ConvertFullHdHeight(45) });
   }
 }
 
@@ -456,14 +483,16 @@ void Game::RenderPlane(void)
   engine.Render(plane);
 
   SDL_Color constexpr bannerColor = gold;
-  Position const bannerPos = { plane.GetPosition().x + plane.GetScale().x, plane.GetPosition().y + 26 };
-  Position const bannerScale = { highscores.GetScale().x + 20, 72 };
+  Position const bannerPos = { plane.GetPosition().x + plane.GetScale().x,
+                               plane.GetPosition().y + ConvertFullHdHeight(26) };
+  Position const bannerScale = { highscores.GetScale().x + ConvertFullHdWidth(20),
+                                 ConvertFullHdHeight(72) };
   engine.RenderRect(bannerPos, bannerScale, bannerColor);
 
   std::vector<Position> const bannerTailTop =
   {{
     { bannerPos.x + bannerScale.x,      bannerPos.y },
-    { bannerPos.x + bannerScale.x + 50, bannerPos.y },
+    { bannerPos.x + bannerScale.x + ConvertFullHdWidth(50), bannerPos.y },
     { bannerPos.x + bannerScale.x,      bannerPos.y + bannerScale.y / 2 },
   }};
   engine.RenderGeometry(bannerTailTop, bannerColor);
@@ -471,7 +500,7 @@ void Game::RenderPlane(void)
   std::vector<Position> const bannerTailBottom =
   {{
     { bannerPos.x + bannerScale.x,      bannerPos.y + bannerScale.y / 2 },
-    { bannerPos.x + bannerScale.x + 50, bannerPos.y + bannerScale.y },
+    { bannerPos.x + bannerScale.x + ConvertFullHdWidth(50), bannerPos.y + bannerScale.y },
     { bannerPos.x + bannerScale.x,      bannerPos.y + bannerScale.y },
   }};
   engine.RenderGeometry(bannerTailBottom, bannerColor);
@@ -482,12 +511,20 @@ void Game::RenderPlane(void)
 
 void Game::RenderInputForNewHighscore(void)
 {
-  engine.RenderRect(gameOver.GetPosition() - Position{ 10, 10 }, gameOver.GetScale() + Position{ 20, 20 }, gold);
+  engine.RenderRect(gameOver.GetPosition() - ConvertFullHd({ 10, 10 }),
+                    gameOver.GetScale() + ConvertFullHd({ 20, 20 }),
+                    gold);
   engine.RenderRect(gameOver.GetPosition(), gameOver.GetScale(), black);
   engine.Render(trophy);
-  engine.RenderText(gameOver.GetPosition() + Position{300,50}, "New highscore!", pFontStandard, white);
-  engine.RenderText(gameOver.GetPosition() + Position{300,200}, "Enter name:", pFontStandard, white);
-  engine.RenderText(gameOver.GetPosition() + Position{300,300}, newHighscoreName.c_str(), pFontStandard, gold);
+  engine.Render(newHighscore);
+  engine.Render(enterName);
+
+  // Render player input
+  SDL_Texture* const pNewHSName(engine.CreateTextTexture(newHighscoreName.c_str(), pFontStandard, gold));
+  Entity newHSName(pNewHSName, gameOver.GetPosition() + ConvertFullHd({ 300, 300 }));
+  newHSName.SetScale(ConvertFullHd(newHSName.GetTextureSize()));
+  engine.Render(newHSName);
+  engine.DestroyTexture(pNewHSName);
 }
 
 
@@ -507,7 +544,7 @@ void Game::UpdateHighscoreBanner(void)
   }
   pHighscores = engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, red);
   highscores.SetTexture(pHighscores);
-  highscores.SetScale(highscores.GetTextureSize());
+  highscores.SetScale(ConvertFullHd(highscores.GetTextureSize()));
 }
 
 
@@ -560,4 +597,23 @@ void Game::ApplyStoredHighscores(void)
     StoreHighscores();
   }
   UpdateHighscoreBanner();
+}
+
+
+Position Game::ConvertFullHd(Position const & fhdPosition)
+{
+  return { static_cast<int>(static_cast<float>(resolution.x) / 1920.0 * static_cast<float>(fhdPosition.x)),
+           static_cast<int>(static_cast<float>(resolution.y) / 1080.0 * static_cast<float>(fhdPosition.y)) };
+}
+
+
+int Game::ConvertFullHdWidth(int const fhdWidth)
+{
+  return static_cast<int>(static_cast<float>(resolution.x) / 1920.0 * static_cast<float>(fhdWidth));
+}
+
+
+int Game::ConvertFullHdHeight(int const fhdHeight)
+{
+  return static_cast<int>(static_cast<float>(resolution.y) / 1080.0 * static_cast<float>(fhdHeight));
 }

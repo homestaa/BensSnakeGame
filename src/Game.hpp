@@ -14,7 +14,7 @@ typedef struct Mix_Chunk Mix_Chunk;
 class Game
 {
 public:
-  Game(void);
+  Game(Position const & res = { 0, 0 });
   ~Game(void);
 
   void Run(void);

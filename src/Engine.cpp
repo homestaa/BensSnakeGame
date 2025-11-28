@@ -10,9 +10,10 @@
 #include <SDL_video.h>
 #include <stdexcept>
 
-Engine::Engine(char const * const pWindowName)
+Engine::Engine(char const * const pWindowName, Position const & res)
 : pWindow(nullptr)
 , pRenderer(nullptr)
+, resolution(res)
 {
   // Initialize SDL
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -31,11 +32,18 @@ Engine::Engine(char const * const pWindowName)
   pWindow= SDL_CreateWindow(pWindowName,
                             SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED,
-                            SDL_WINDOWPOS_UNDEFINED,
-                            SDL_WINDOWPOS_UNDEFINED,
-                            SDL_WINDOW_FULLSCREEN);
+                            resolution.x,
+                            resolution.y,
+                            (resolution == Position{ 0, 0 }) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
   if (pWindow == nullptr)
     throw std::runtime_error("Game::Game: Window could not be created.");
+
+  if (resolution == Position{ 0, 0 })
+  {
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
+    resolution = Position{ mode.w, mode.h };
+  }
 
   // Create renderer
   pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
@@ -199,7 +207,5 @@ void Engine::UpdateScreen(void)
 
 Position Engine::GetResolution(void) const
 {
-  SDL_DisplayMode mode;
-  SDL_GetCurrentDisplayMode(0, &mode);
-  return { mode.w, mode.h };
+  return resolution;
 }

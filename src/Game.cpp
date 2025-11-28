@@ -16,8 +16,8 @@ static constexpr SDL_Color gold = { 255, 215U, 0U };
 static constexpr SDL_Color darkblue = { 0U, 0U, 50U };
 static constexpr SDL_Color darkerblue = { 0U, 0U, 40U };
 
-Game::Game(void)
-: engine("Ben's Snake Game")
+Game::Game(Position const & res)
+: engine("Ben's Snake Game", res)
 , resolution(engine.GetResolution())
 , state(State::Init)
 , quit(false)
@@ -88,7 +88,7 @@ Game::Game(void)
   Mix_PlayMusic(pMusic, -1);
 
   // Adjust font scale relating to resolution
-  std::cout << "resolution: " << resolution.x << " x " << resolution.y << "\n";
+  std::cout << "resolution: " << resolution.x << "x" << resolution.y << "\n";
   bensGame.SetScale(ConvertFullHd(bensGame.GetTextureSize()));
   start.SetScale(ConvertFullHd(start.GetTextureSize()));
   exit.SetScale(ConvertFullHd(exit.GetTextureSize()));

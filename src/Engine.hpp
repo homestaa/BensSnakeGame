@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Position.hpp"
 #include <vector>
 
 typedef struct SDL_Window SDL_Window;
@@ -8,13 +9,12 @@ typedef struct SDL_Texture SDL_Texture;
 typedef struct SDL_Color SDL_Color;
 typedef struct _TTF_Font TTF_Font;
 
-class Position;
 class Entity;
 
 class Engine
 {
 public:
-  Engine(char const * const pWindowName = "");
+  Engine(char const * const pWindowName = "", Position const & res = { 0, 0 });
   ~Engine(void);
 
   SDL_Texture* CreatePicTexture(char const * const pFile);
@@ -37,4 +37,5 @@ public:
 private:
   SDL_Window* pWindow;
   SDL_Renderer* pRenderer;
+  Position resolution;
 };

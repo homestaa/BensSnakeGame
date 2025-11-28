@@ -10,7 +10,7 @@
 #include <SDL_video.h>
 #include <stdexcept>
 
-Engine::Engine(void)
+Engine::Engine(char const * const pWindowName)
 : pWindow(nullptr)
 , pRenderer(nullptr)
 {
@@ -28,7 +28,7 @@ Engine::Engine(void)
     throw std::runtime_error("Game::Game: TTF could not be initialized.");
 
   // Create window
-  pWindow= SDL_CreateWindow("Ben's Game",
+  pWindow= SDL_CreateWindow(pWindowName,
                             SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED,

@@ -17,7 +17,7 @@ static constexpr SDL_Color darkblue = { 0U, 0U, 50U };
 static constexpr SDL_Color darkerblue = { 0U, 0U, 40U };
 
 Game::Game(void)
-: engine()
+: engine("Ben's Snake Game")
 , resolution(engine.GetResolution())
 , state(State::Init)
 , quit(false)

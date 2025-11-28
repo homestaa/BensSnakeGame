@@ -14,7 +14,7 @@ class Entity;
 class Engine
 {
 public:
-  Engine(void);
+  Engine(char const * const pWindowName = "");
   ~Engine(void);
 
   SDL_Texture* CreatePicTexture(char const * const pFile);

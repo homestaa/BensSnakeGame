@@ -1,5 +1,7 @@
 # Bens Snake Game
 
+![](./screenshot.jpg)
+
 This is a simple snake game made with C++ and SDL2.<br>
 The intention of this project is to try out the SDL2 library.
 

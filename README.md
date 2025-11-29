@@ -54,3 +54,6 @@ After the game is built successfully, it can be started like this.
 cd ./build
 ./Bens-Snake-Game
 ```
+
+To run the game in windowed mode, this can be accomplished by passing the desired resolution as argument `<width>x<height>`, for example:<br>
+`./Bens-Snake-Game 800x600`

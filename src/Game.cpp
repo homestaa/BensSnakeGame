@@ -302,19 +302,31 @@ void Game::HandleEvent(void)
           break;
 
         case SDLK_UP:
-          pressedDirection = Direction::Up;
+          if ((snakeDirection == Direction::Left) || (snakeDirection == Direction::Right))
+          {
+            pressedDirection = Direction::Up;
+          }
           break;
 
         case SDLK_DOWN:
-          pressedDirection = Direction::Down;
+          if ((snakeDirection == Direction::Left) || (snakeDirection == Direction::Right))
+          {
+            pressedDirection = Direction::Down;
+          }
           break;
 
         case SDLK_LEFT:
-          pressedDirection = Direction::Left;
+          if ((snakeDirection == Direction::Up) || (snakeDirection == Direction::Down))
+          {
+            pressedDirection = Direction::Left;
+          }
           break;
 
         case SDLK_RIGHT:
-          pressedDirection = Direction::Right;
+          if ((snakeDirection == Direction::Up) || (snakeDirection == Direction::Down))
+          {
+            pressedDirection = Direction::Right;
+          }
           break;
 
         default:
@@ -341,14 +353,7 @@ void Game::HandleGame(void)
     lastGameHandleTick = currentTick;
     Position snakeHeadpos = snake.front();
 
-    if (   (   ((snakeDirection == Direction::Left) || (snakeDirection == Direction::Right))
-            && ((pressedDirection == Direction::Up) || (pressedDirection == Direction::Down)))
-        || (   ((snakeDirection == Direction::Up) || (snakeDirection == Direction::Down))
-            && ((pressedDirection == Direction::Left) || (pressedDirection == Direction::Right))))
-    {
-      // Pressed direction only valid, when orthogonal
-      snakeDirection = pressedDirection;
-    }
+    snakeDirection = pressedDirection;
 
     switch (snakeDirection)
     {

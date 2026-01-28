@@ -28,10 +28,10 @@ apt install cmake
 
 ### Required libraries
 
-- SDL2
-- SDL2-image
-- SDL2-ttf
-- SDL2-mixer
+- SDL2 (V2.30.0)
+- SDL2-image (V2.8.2)
+- SDL2-ttf (V2.22.0)
+- SDL2-mixer (V2.8.0)
 
 For Debian distributions, these libraries can be installed like this.
 

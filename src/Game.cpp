@@ -49,6 +49,7 @@ Game::Game(Position const & res)
 , pHighscores(engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, white))
 , pNewHighScore(engine.CreateTextTexture("New highscore!", pFontStandard, white))
 , pEnterName(engine.CreateTextTexture("Enter name:", pFontStandard, white))
+, pVersion(engine.CreateTextTexture(VERSION, pFontStandardSmall, black))
 , pTitleBackground(engine.CreatePicTexture("./res/gfx/titleBackground.jpg"))
 , pApple(engine.CreatePicTexture("./res/gfx/apple.png"))
 , pSnakeHead(engine.CreatePicTexture("./res/gfx/snakeHead.png"))
@@ -75,6 +76,7 @@ Game::Game(Position const & res)
 , trophy(pTrophy, gameOver.GetPosition() + ConvertFullHd({ 20, 50 }), ConvertFullHd({ 220, 242 }))
 , newHighscore(pNewHighScore, gameOver.GetPosition() + ConvertFullHd({ 300, 50 }))
 , enterName(pEnterName, gameOver.GetPosition() + ConvertFullHd({ 300, 200 }))
+, version(pVersion, ConvertFullHd({ 1845, 1050 }))
 {
   // use current time as seed for random generator
   std::srand(std::time({}));
@@ -97,6 +99,7 @@ Game::Game(Position const & res)
   score.SetScale(ConvertFullHd(score.GetTextureSize()));
   newHighscore.SetScale(ConvertFullHd(newHighscore.GetTextureSize()));
   enterName.SetScale(ConvertFullHd(enterName.GetTextureSize()));
+  version.SetScale(ConvertFullHd(version.GetTextureSize()));
 }
 
 
@@ -116,6 +119,7 @@ Game::~Game(void)
   engine.DestroyTexture(pSnakeHead);
   engine.DestroyTexture(pApple);
   engine.DestroyTexture(pTitleBackground);
+  engine.DestroyTexture(pVersion);
   engine.DestroyTexture(pEnterName);
   engine.DestroyTexture(pNewHighScore);
   engine.DestroyTexture(pHighscores);
@@ -202,7 +206,7 @@ void Game::RenderBackground(void)
   engine.Render(bensGame);
   engine.Render(ConvertFullHd({ 1640, 695 }), ConvertFullHd({ 50, 50 }), pApple, SCORE_ANGLE);
   engine.Render(score);
-  engine.RenderText(ConvertFullHd({ 1845, 1050 }), VERSION, pFontStandardSmall, black);
+  engine.Render(version);
 }
 
 

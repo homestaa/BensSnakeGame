@@ -75,7 +75,7 @@ private:
   TTF_Font* pFontStandard;
   TTF_Font* pFontStandardSmall;
 
-  // Textures
+  // Font Textures
   SDL_Texture* pBensGame;
   SDL_Texture* pStart;
   SDL_Texture* pExit;
@@ -83,6 +83,9 @@ private:
   SDL_Texture* pHighscores;
   SDL_Texture* pNewHighScore;
   SDL_Texture* pEnterName;
+  SDL_Texture* pVersion;
+
+  // Pic Textures
   SDL_Texture* pTitleBackground;
   SDL_Texture* pApple;
   SDL_Texture* pSnakeHead;
@@ -113,6 +116,7 @@ private:
   Entity trophy;
   Entity newHighscore;
   Entity enterName;
+  Entity version;
 
   void Restart(void);
   void AddSnakeHead(Position const fieldpos);

@@ -2,6 +2,7 @@
 #include "Engine.hpp"
 #include "Entity.hpp"
 #include "Position.hpp"
+#include "version.h"
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <algorithm>
@@ -40,6 +41,7 @@ Game::Game(Position const & res)
 , pFontScore(engine.CreateFont("./res/font/TradingPostBold.ttf", 36))
 , pFontHighscores(engine.CreateFont("./res/font/FromCartoonBlocks.ttf", 36))
 , pFontStandard(engine.CreateFont("./res/font/Montserrat.ttf", 36))
+, pFontStandardSmall(engine.CreateFont("./res/font/Montserrat.ttf", 24))
 , pBensGame(engine.CreateTextTexture("Bens Snake Game", pFontTitle, black))
 , pStart(engine.CreateTextTexture("Start", pFontButton, red))
 , pExit(engine.CreateTextTexture("Exit", pFontButton, red))
@@ -122,6 +124,7 @@ Game::~Game(void)
   engine.DestroyTexture(pStart);
   engine.DestroyTexture(pBensGame);
 
+  engine.DestroyFont(pFontStandardSmall);
   engine.DestroyFont(pFontStandard);
   engine.DestroyFont(pFontHighscores);
   engine.DestroyFont(pFontScore);
@@ -199,6 +202,7 @@ void Game::RenderBackground(void)
   engine.Render(bensGame);
   engine.Render(ConvertFullHd({ 1640, 695 }), ConvertFullHd({ 50, 50 }), pApple, SCORE_ANGLE);
   engine.Render(score);
+  engine.RenderText(ConvertFullHd({ 1845, 1050 }), VERSION, pFontStandardSmall, black);
 }
 
 

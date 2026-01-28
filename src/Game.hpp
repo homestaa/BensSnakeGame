@@ -73,6 +73,7 @@ private:
   TTF_Font* pFontScore;
   TTF_Font* pFontHighscores;
   TTF_Font* pFontStandard;
+  TTF_Font* pFontStandardSmall;
 
   // Textures
   SDL_Texture* pBensGame;

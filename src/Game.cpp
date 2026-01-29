@@ -2,7 +2,7 @@
 #include "Engine.hpp"
 #include "Entity.hpp"
 #include "Position.hpp"
-#include "version.h"
+#include "version.hpp"
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <algorithm>

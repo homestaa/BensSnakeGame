@@ -24,3 +24,7 @@ target_link_libraries(${PROJECT_NAME}
                       SDL2_image::SDL2_image
                       SDL2_ttf::SDL2_ttf
                       SDL2_mixer::SDL2_mixer)
+
+if (WIN32)
+    target_link_options(${PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++ -static)
+endif (WIN32)

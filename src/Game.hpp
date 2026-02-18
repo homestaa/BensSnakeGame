@@ -36,10 +36,42 @@ private:
     NewHighscore
   };
 
+  enum class Field
+  {
+    Free,
+    Snake0,
+    Snake1
+  };
+
   struct HighscoreEntry
   {
     std::string name;
     uint16_t score;
+  };
+
+  struct Player
+  {
+    Player(SDL_Texture* const pSnakeHead, SDL_Texture* const pSnakeHeadDead, SDL_Texture* const pSnakeSkin,
+           Position const & fieldGridScale, Field const fieldMarker)
+    : snake()
+    , snakeDirection(Direction::Up)
+    , pressedDirection(Direction::Up)
+    , pSnakeHead(pSnakeHead)
+    , pSnakeHeadDead(pSnakeHeadDead)
+    , pSnakeSkin(pSnakeSkin)
+    , snakeHead(pSnakeHead, { 0, 0 }, { fieldGridScale.x, static_cast<int>(fieldGridScale.y * 163.0 / 104.0) })
+    , fieldMarker(fieldMarker)
+    {
+    }
+
+    std::deque<Position> snake;
+    Direction snakeDirection;
+    Direction pressedDirection;
+    SDL_Texture* pSnakeHead;
+    SDL_Texture* pSnakeHeadDead;
+    SDL_Texture* pSnakeSkin;
+    Entity snakeHead;
+    Field fieldMarker;
   };
 
   static int constexpr FIELD_WIDTH = 19;
@@ -51,21 +83,23 @@ private:
   Engine engine;
   Position resolution;
   State state;
+  bool singlePlayer;
   bool quit;
   uint16_t scoreCount;
-  bool field[FIELD_WIDTH][FIELD_HEIGHT];
+  size_t numberOfMoves;
+  Field field[FIELD_WIDTH][FIELD_HEIGHT];
   Position fieldPosition;
   Position fieldScale;
   Position fieldGridScale;
-  std::deque<Position> snake;
-  Direction snakeDirection;
-  Direction pressedDirection;
+
   uint64_t currentTick;
   uint64_t lastGameHandleTick;
   uint64_t lastHighScoreHandleTick;
   std::string highscoresStr;
   std::string newHighscoreName;
   std::array<HighscoreEntry, 3> highscoreEntries;
+
+  std::array<Player, 2> players;
 
   // Fonts
   TTF_Font* pFontTitle;
@@ -88,9 +122,6 @@ private:
   // Pic Textures
   SDL_Texture* pTitleBackground;
   SDL_Texture* pApple;
-  SDL_Texture* pSnakeHead;
-  SDL_Texture* pSnakeHeadDead;
-  SDL_Texture* pSnakeSkin;
   SDL_Texture* pGameOver;
   SDL_Texture* pPlane;
   SDL_Texture* pTrophy;
@@ -109,7 +140,6 @@ private:
   Entity score;
   Entity titleBackground;
   Entity apple;
-  Entity snakeHead;
   Entity gameOver;
   Entity plane;
   Entity highscores;
@@ -119,8 +149,8 @@ private:
   Entity version;
 
   void Restart(void);
-  void AddSnakeHead(Position const fieldpos);
-  void RemoveSnakeTail(void);
+  void AddSnakeHead(Player & player, Position const fieldpos);
+  void RemoveSnakeTail(Player & player);
   void RenderBackground(void);
   void RandomApplePosition(void);
   void UpdateScoreDisplay(void);

@@ -206,14 +206,14 @@ void Game::Restart(void)
   else
   {
     // Player 1
-    AddSnakeHead(players[0], {FIELD_WIDTH / 2 - 2, FIELD_HEIGHT - 1});
-    AddSnakeHead(players[0], {FIELD_WIDTH / 2 - 2, FIELD_HEIGHT - 2});
-    AddSnakeHead(players[0], {FIELD_WIDTH / 2 - 2, FIELD_HEIGHT - 3});
+    AddSnakeHead(players[0], {FIELD_WIDTH / 2 + 2, FIELD_HEIGHT - 1});
+    AddSnakeHead(players[0], {FIELD_WIDTH / 2 + 2, FIELD_HEIGHT - 2});
+    AddSnakeHead(players[0], {FIELD_WIDTH / 2 + 2, FIELD_HEIGHT - 3});
 
     // Payer 2
-    AddSnakeHead(players[1], {FIELD_WIDTH / 2 + 2, FIELD_HEIGHT - 1});
-    AddSnakeHead(players[1], {FIELD_WIDTH / 2 + 2, FIELD_HEIGHT - 2});
-    AddSnakeHead(players[1], {FIELD_WIDTH / 2 + 2, FIELD_HEIGHT - 3});
+    AddSnakeHead(players[1], {FIELD_WIDTH / 2 - 2, FIELD_HEIGHT - 1});
+    AddSnakeHead(players[1], {FIELD_WIDTH / 2 - 2, FIELD_HEIGHT - 2});
+    AddSnakeHead(players[1], {FIELD_WIDTH / 2 - 2, FIELD_HEIGHT - 3});
   }
 
   scoreCount = 0U;
@@ -512,7 +512,7 @@ void Game::HandleGame(void)
           ++scoreCount;
           UpdateScoreDisplay();
         }
-        else if (singlePlayer || ((numberOfMoves % 10UL) != 0UL))
+        else if (singlePlayer || ((numberOfMoves % 3UL) != 0UL))
         {
           RemoveSnakeTail(player);
         }

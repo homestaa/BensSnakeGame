@@ -75,7 +75,7 @@ SDL_Texture* Engine::CreatePicTexture(char const * const pFile)
 {
   SDL_Texture* pTexture = IMG_LoadTexture(pRenderer, pFile);
   if (pTexture == nullptr)
-    throw std::runtime_error("Engine::CreateTexture: Failed to load.");
+    throw std::runtime_error("Engine::CreatePicTexture: Failed to load.");
 
   return pTexture;
 }

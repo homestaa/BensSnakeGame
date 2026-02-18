@@ -79,10 +79,13 @@ private:
   static double constexpr SCORE_ANGLE = 10.0;
   static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
   static char constexpr HIGHSCORE_PATH[] = "./highscores.txt";
+  static Position constexpr POS_CHECKED_1P = { 25, 140 };
+  static Position constexpr POS_CHECKED_2P = { 25, 200 };
 
   Engine engine;
   Position resolution;
   State state;
+  bool checkedOnePlayer;
   bool singlePlayer;
   bool quit;
   uint16_t scoreCount;
@@ -112,6 +115,8 @@ private:
   // Font Textures
   SDL_Texture* pBensGame;
   SDL_Texture* pStart;
+  SDL_Texture* pOnePlayer;
+  SDL_Texture* pTwoPlayer;
   SDL_Texture* pExit;
   SDL_Texture* pScore;
   SDL_Texture* pHighscores;
@@ -121,6 +126,9 @@ private:
 
   // Pic Textures
   SDL_Texture* pTitleBackground;
+  SDL_Texture* pChecked;
+  SDL_Texture* pArrows;
+  SDL_Texture* pWasd;
   SDL_Texture* pApple;
   SDL_Texture* pGameOver;
   SDL_Texture* pPlane;
@@ -132,13 +140,19 @@ private:
   Mix_Chunk* pPunchSound;
   Mix_Chunk* pHornSound;
   Mix_Chunk* pCheerSound;
+  Mix_Chunk* pSquashSound;
 
   // Entities
   Entity bensGame;
   Entity start;
+  Entity onePlayer;
+  Entity twoPlayer;
   Entity exit;
   Entity score;
   Entity titleBackground;
+  Entity checked;
+  Entity arrows;
+  Entity wasd;
   Entity apple;
   Entity gameOver;
   Entity plane;

@@ -21,7 +21,8 @@ Game::Game(Position const & res)
 : engine("Ben's Snake Game", res)
 , resolution(engine.GetResolution())
 , state(State::Init)
-, singlePlayer(false)
+, checkedOnePlayer(true)
+, singlePlayer(checkedOnePlayer)
 , quit(false)
 , scoreCount(0U)
 , numberOfMoves(0UL)
@@ -49,6 +50,8 @@ Game::Game(Position const & res)
 , pFontStandardSmall(engine.CreateFont("./res/font/Montserrat.ttf", 24))
 , pBensGame(engine.CreateTextTexture("Bens Snake Game", pFontTitle, black))
 , pStart(engine.CreateTextTexture("Start", pFontButton, red))
+, pOnePlayer(engine.CreateTextTexture("  1 P", pFontButton, red))
+, pTwoPlayer(engine.CreateTextTexture(" 2 P", pFontButton, red))
 , pExit(engine.CreateTextTexture("Exit", pFontButton, red))
 , pScore(engine.CreateTextTexture("x  0", pFontScore, black))
 , pHighscores(engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, white))
@@ -56,6 +59,9 @@ Game::Game(Position const & res)
 , pEnterName(engine.CreateTextTexture("Enter name:", pFontStandard, white))
 , pVersion(engine.CreateTextTexture(VERSION, pFontStandardSmall, black))
 , pTitleBackground(engine.CreatePicTexture("./res/gfx/titleBackground.jpg"))
+, pChecked(engine.CreatePicTexture("./res/gfx/checked.png"))
+, pArrows(engine.CreatePicTexture("./res/gfx/arrows.png"))
+, pWasd(engine.CreatePicTexture("./res/gfx/wasd.png"))
 , pApple(engine.CreatePicTexture("./res/gfx/apple.png"))
 , pGameOver(engine.CreatePicTexture("./res/gfx/gameOver.png"))
 , pPlane(engine.CreatePicTexture("./res/gfx/plane.png"))
@@ -65,11 +71,17 @@ Game::Game(Position const & res)
 , pPunchSound(Mix_LoadWAV("./res/sfx/punch.mp3"))
 , pHornSound(Mix_LoadWAV("./res/sfx/horn.mp3"))
 , pCheerSound(Mix_LoadWAV("./res/sfx/cheering.mp3"))
+, pSquashSound(Mix_LoadWAV("./res/sfx/squash.mp3"))
 , bensGame(pBensGame, ConvertFullHd({ 20, 20 }))
 , start(pStart, ConvertFullHd({ 20, 100 }))
-, exit(pExit, ConvertFullHd({ 20, 160 }))
+, onePlayer(pOnePlayer, ConvertFullHd({ 20, 160 }))
+, twoPlayer(pTwoPlayer, ConvertFullHd({ 20, 220 }))
+, exit(pExit, ConvertFullHd({ 20, 320 }))
 , score(pScore, ConvertFullHd({ 1700, 712 }), { 0, 0 }, SCORE_ANGLE)
 , titleBackground(pTitleBackground, { 0, 0 }, ConvertFullHd({ 1920, 1080 }))
+, checked(pChecked, ConvertFullHd(POS_CHECKED_1P), ConvertFullHd({ 80, 80 }))
+, arrows(pArrows, ConvertFullHd({ 100, 160 }), ConvertFullHd({ 40, 30 }))
+, wasd(pWasd, ConvertFullHd({ 100, 220 }), ConvertFullHd({ 40, 30 }))
 , apple(pApple, { 0, 0 }, fieldGridScale)
 , gameOver(pGameOver, fieldPosition + ConvertFullHd({ 60, 200 }), ConvertFullHd({ 800, 480 }))
 , plane(pPlane, { resolution.x, 0 }, ConvertFullHd({ 219, 102 }))
@@ -89,6 +101,7 @@ Game::Game(Position const & res)
   Mix_VolumeChunk(pPunchSound, MIX_MAX_VOLUME / 2);
   Mix_VolumeChunk(pHornSound, MIX_MAX_VOLUME / 2);
   Mix_VolumeChunk(pCheerSound, MIX_MAX_VOLUME);
+  Mix_VolumeChunk(pSquashSound, MIX_MAX_VOLUME);
   Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
   Mix_PlayMusic(pMusic, -1);
 
@@ -96,6 +109,8 @@ Game::Game(Position const & res)
   std::cout << "resolution: " << resolution.x << "x" << resolution.y << "\n";
   bensGame.SetScale(ConvertFullHd(bensGame.GetTextureSize()));
   start.SetScale(ConvertFullHd(start.GetTextureSize()));
+  onePlayer.SetScale(ConvertFullHd(onePlayer.GetTextureSize()));
+  twoPlayer.SetScale(ConvertFullHd(twoPlayer.GetTextureSize()));
   exit.SetScale(ConvertFullHd(exit.GetTextureSize()));
   score.SetScale(ConvertFullHd(score.GetTextureSize()));
   newHighscore.SetScale(ConvertFullHd(newHighscore.GetTextureSize()));
@@ -116,6 +131,7 @@ Game::~Game(void)
   engine.DestroyTexture(pPlane);
   engine.DestroyTexture(pGameOver);
   engine.DestroyTexture(pApple);
+  engine.DestroyTexture(pChecked);
   engine.DestroyTexture(pTitleBackground);
   engine.DestroyTexture(pVersion);
   engine.DestroyTexture(pEnterName);
@@ -123,6 +139,8 @@ Game::~Game(void)
   engine.DestroyTexture(pHighscores);
   engine.DestroyTexture(pScore);
   engine.DestroyTexture(pExit);
+  engine.DestroyTexture(pTwoPlayer);
+  engine.DestroyTexture(pOnePlayer);
   engine.DestroyTexture(pStart);
   engine.DestroyTexture(pBensGame);
 
@@ -166,6 +184,7 @@ void Game::Run(void)
 
 void Game::Restart(void)
 {
+  singlePlayer = checkedOnePlayer;
   memset(field, 0, sizeof(field));
   for (Player & player : players)
   {
@@ -203,6 +222,9 @@ void Game::Restart(void)
   currentTick = SDL_GetPerformanceCounter();
   lastGameHandleTick = currentTick;
   numberOfMoves = 0UL;
+
+  state = State::Running;
+  (void)Mix_PlayChannel(-1, pHornSound, 0);
 }
 
 
@@ -227,6 +249,11 @@ void Game::RenderBackground(void)
   engine.Render(titleBackground);
   RenderPlane();
   engine.Render(start);
+  engine.Render(checked);
+  engine.Render(onePlayer);
+  engine.Render(arrows);
+  engine.Render(twoPlayer);
+  engine.Render(wasd);
   engine.Render(exit);
   engine.Render(bensGame);
   engine.Render(ConvertFullHd({ 1640, 695 }), ConvertFullHd({ 50, 50 }), pApple, SCORE_ANGLE);
@@ -294,19 +321,34 @@ void Game::HandleEvent(void)
           ApplyNewHighscore();
         }
         quit = true;
-        break;
       }
-      if (start.IsOnPosition(mousePos))
+      else if (start.IsOnPosition(mousePos))
       {
         if ((state == State::NewHighscore) && (!newHighscoreName.empty()))
         {
           ApplyNewHighscore();
         }
-        (void)Mix_PlayChannel(-1, pHornSound, 0);
         Restart();
-        state = State::Running;
-        break;
       }
+      else if (onePlayer.IsOnPosition(mousePos))
+      {
+        if ((state != State::Running) && (checkedOnePlayer == false))
+        {
+          (void)Mix_PlayChannel(-1, pSquashSound, 0);
+          checkedOnePlayer = true;
+          checked.SetPosition(POS_CHECKED_1P);
+        }
+      }
+      else if (twoPlayer.IsOnPosition(mousePos))
+      {
+        if ((state != State::Running) && (checkedOnePlayer == true))
+        {
+          (void)Mix_PlayChannel(-1, pSquashSound, 0);
+          checkedOnePlayer = false;
+          checked.SetPosition(POS_CHECKED_2P);
+        }
+      }
+      break;
     }
 
     case SDL_TEXTINPUT:

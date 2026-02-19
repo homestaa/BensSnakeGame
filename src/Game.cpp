@@ -92,13 +92,13 @@ Game::Game(Position const & res)
   // use current time as seed for random generator
   std::srand(std::time({}));
 
-  // Randomize plane's banner color with complementary text color
-  bannerBgColor = { static_cast<uint8_t>(std::rand() % 255),
-                    static_cast<uint8_t>(std::rand() % 255),
-                    static_cast<uint8_t>(std::rand() % 255) };
-  bannerTxtColor.r = bannerBgColor.r + 128U;
-  bannerTxtColor.g = bannerBgColor.g + 128U;
-  bannerTxtColor.b = bannerBgColor.b + 128U;
+  // Randomize plane's banner color with contrast text color
+  bannerBgColor = { static_cast<uint8_t>(std::rand() % 256),
+                    static_cast<uint8_t>(std::rand() % 256),
+                    static_cast<uint8_t>(std::rand() % 256) };
+  bannerTxtColor.r = (bannerBgColor.r < 128U) ? 255U : 0U;
+  bannerTxtColor.g = (bannerBgColor.g < 128U) ? 255U : 0U;
+  bannerTxtColor.b = (bannerBgColor.b < 128U) ? 255U : 0U;
 
   ApplyStoredHighscores();
 

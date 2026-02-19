@@ -340,7 +340,7 @@ void Game::HandleEvent(void)
         {
           (void)Mix_PlayChannel(-1, pSquashSound, 0);
           checkedOnePlayer = true;
-          checked.SetPosition(POS_CHECKED_1P);
+          checked.SetPosition(ConvertFullHd(POS_CHECKED_1P));
         }
       }
       else if (twoPlayer.IsOnPosition(mousePos))
@@ -349,7 +349,7 @@ void Game::HandleEvent(void)
         {
           (void)Mix_PlayChannel(-1, pSquashSound, 0);
           checkedOnePlayer = false;
-          checked.SetPosition(POS_CHECKED_2P);
+          checked.SetPosition(ConvertFullHd(POS_CHECKED_2P));
         }
       }
       break;

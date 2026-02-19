@@ -380,6 +380,13 @@ void Game::HandleEvent(void)
           }
           break;
 
+        case SDLK_SPACE:
+          if ((state == State::Init) || (state == State::GameOver) )
+          {
+            Restart();
+          }
+          break;
+
         case SDLK_UP:
           if ((players[0].snakeDirection == Direction::Left) || (players[0].snakeDirection == Direction::Right))
           {

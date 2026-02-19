@@ -5,13 +5,26 @@
 This is a simple snake game made with C++ and SDL2.<br>
 The intention of this project is to try out the SDL2 library.
 
-Furthermore, this game provides funny textures, sounds and a highscore display.
+Furthermore, this game provides funny textures, sounds, a highscore display and a two player mode.
 
 ## How to play
+
+### One player mode
 
 The snake is controlled by the arrow buttons of the keyboard.
 
 The goal is to get as many apples as possible to reach a new highscore.
+
+The snake grows up for each eaten apple.
+
+### Two player mode
+
+Player one controls his snake by the arrow buttons of the keyboard.<br>
+Player two controls his snake by buttons WASD of the keyboard.
+
+You win if you keep your snake alive longer than your opponent.
+
+The snakes grow up per time.
 
 ## Requirements
 

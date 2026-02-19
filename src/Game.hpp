@@ -79,8 +79,8 @@ private:
   static double constexpr SCORE_ANGLE = 10.0;
   static uint64_t constexpr SNAKE_MOVE_PERIOD_MS = 100UL;
   static char constexpr HIGHSCORE_PATH[] = "./highscores.txt";
-  static Position constexpr POS_CHECKED_1P = { 25, 140 };
-  static Position constexpr POS_CHECKED_2P = { 25, 200 };
+  static Position constexpr POS_CHECKED_1P = { 12, 140 };
+  static Position constexpr POS_CHECKED_2P = { 12, 200 };
 
   Engine engine;
   Position resolution;

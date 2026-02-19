@@ -46,12 +46,14 @@ Game::Game(Position const & res)
 , pFontButton(engine.CreateFont("./res/font/GretoonHighlight.ttf", 28))
 , pFontScore(engine.CreateFont("./res/font/TradingPostBold.ttf", 36))
 , pFontHighscores(engine.CreateFont("./res/font/FromCartoonBlocks.ttf", 36))
+, pFontGameOver2P(engine.CreateFont("./res/font/FromCartoonBlocks.ttf", 100))
 , pFontStandard(engine.CreateFont("./res/font/Montserrat.ttf", 36))
 , pFontStandardSmall(engine.CreateFont("./res/font/Montserrat.ttf", 24))
 , pBensGame(engine.CreateTextTexture("Bens Snake Game", pFontTitle, black))
 , pStart(engine.CreateTextTexture("Start", pFontButton, red))
 , pOnePlayer(engine.CreateTextTexture("  1 P", pFontButton, red))
 , pTwoPlayer(engine.CreateTextTexture(" 2 P", pFontButton, red))
+, pGameOverTwoPlayers(engine.CreateTextTexture("", pFontGameOver2P, white))
 , pExit(engine.CreateTextTexture("Exit", pFontButton, red))
 , pScore(engine.CreateTextTexture("x  0", pFontScore, black))
 , pHighscores(engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, white))
@@ -76,6 +78,7 @@ Game::Game(Position const & res)
 , start(pStart, ConvertFullHd({ 20, 100 }))
 , onePlayer(pOnePlayer, ConvertFullHd({ 20, 160 }))
 , twoPlayer(pTwoPlayer, ConvertFullHd({ 20, 220 }))
+, gameOverTwoPlayers(pGameOverTwoPlayers, fieldPosition + ConvertFullHd({ 180, 400 }))
 , exit(pExit, ConvertFullHd({ 20, 320 }))
 , score(pScore, ConvertFullHd({ 1700, 712 }), { 0, 0 }, SCORE_ANGLE)
 , titleBackground(pTitleBackground, { 0, 0 }, ConvertFullHd({ 1920, 1080 }))
@@ -146,6 +149,7 @@ Game::~Game(void)
 
   engine.DestroyFont(pFontStandardSmall);
   engine.DestroyFont(pFontStandard);
+  engine.DestroyFont(pFontGameOver2P);
   engine.DestroyFont(pFontHighscores);
   engine.DestroyFont(pFontScore);
   engine.DestroyFont(pFontButton);
@@ -455,39 +459,47 @@ void Game::HandleGame(void)
   {
     lastGameHandleTick = currentTick;
     ++numberOfMoves;
-    for (Player & player : players)
+
+    // Update and validate new snake's head positions
+    std::array<Position, 2> snakeHeadpos = { Position{ 0 }, Position{ 0 } };
+    for (size_t i = 0UL; i < players.size(); ++i)
     {
-      Position snakeHeadpos = player.snake.front();
+      snakeHeadpos[i] = players[i].snake.front();
 
-      player.snakeDirection = player.pressedDirection;
+      players[i].snakeDirection = players[i].pressedDirection;
 
-      switch (player.snakeDirection)
+      switch (players[i].snakeDirection)
       {
         case Direction::Up:
-          snakeHeadpos.y -= 1;
+          snakeHeadpos[i].y -= 1;
           break;
 
         case Direction::Down:
-          snakeHeadpos.y += 1;
+          snakeHeadpos[i].y += 1;
           break;
 
         case Direction::Left:
-          snakeHeadpos.x -= 1;
+          snakeHeadpos[i].x -= 1;
           break;
 
         case Direction::Right:
-          snakeHeadpos.x += 1;
+          snakeHeadpos[i].x += 1;
           break;
       }
 
-      if (   (snakeHeadpos.x >= FIELD_WIDTH)
-          || (snakeHeadpos.x < 0)
-          || (snakeHeadpos.y >= FIELD_HEIGHT)
-          || (snakeHeadpos.y < 0)
-          || (field[snakeHeadpos.x][snakeHeadpos.y] != Field::Free))
+      if (   (snakeHeadpos[i].x >= FIELD_WIDTH)
+          || (snakeHeadpos[i].x < 0)
+          || (snakeHeadpos[i].y >= FIELD_HEIGHT)
+          || (snakeHeadpos[i].y < 0)
+          || (field[snakeHeadpos[i].x][snakeHeadpos[i].y] != Field::Free))
       {
         (void)Mix_PlayChannel(-1, pPunchSound, 0);
-        player.snakeHead.SetTexture(player.pSnakeHeadDead);
+        players[i].snakeHead.SetTexture(players[i].pSnakeHeadDead);
+        if (snakeHeadpos[0] == snakeHeadpos[1])
+        {
+          // Kill also player 0 if both players hit themself with their head
+          players[0].snakeHead.SetTexture(players[0].pSnakeHeadDead);
+        }
         if (scoreCount > highscoreEntries.back().score)
         {
           newHighscoreName.clear();
@@ -501,26 +513,59 @@ void Game::HandleGame(void)
       }
       else
       {
-        AddSnakeHead(player, snakeHeadpos);
-        if (   (singlePlayer)
-            && (apple.IsOnPosition({ fieldPosition.x + (snakeHeadpos.x * fieldGridScale.x) + (fieldGridScale.x / 2),
-                                     fieldPosition.y + (snakeHeadpos.y * fieldGridScale.y) + (fieldGridScale.x / 2) })))
-        {
-          // Eat apple
-          (void)Mix_PlayChannel(-1, pBiteSound, 0);
-          RandomApplePosition();
-          ++scoreCount;
-          UpdateScoreDisplay();
-        }
-        else if (singlePlayer || ((numberOfMoves % 3UL) != 0UL))
-        {
-          RemoveSnakeTail(player);
-        }
+        AddSnakeHead(players[i], snakeHeadpos[i]);
       }
 
       if (singlePlayer)
+      {
+        // Only handle player 0 for single player mode
         break;
+      }
     }
+
+    // At least one snake died
+    if (state != State::Running)
+    {
+      // Update game over text for two player game
+      engine.DestroyTexture(pGameOverTwoPlayers);
+      char const * const pGameOverText =
+        (   (players[0].snakeHead.GetTexture() == players[0].pSnakeHead)
+         && (players[1].snakeHead.GetTexture() == players[1].pSnakeHeadDead)) ? "Player 1 wins!" :
+        (   (players[0].snakeHead.GetTexture() == players[0].pSnakeHeadDead)
+         && (players[1].snakeHead.GetTexture() == players[1].pSnakeHead))     ? "Player 2 wins!" :
+                                                                                "   Draw Game!";
+      pGameOverTwoPlayers = engine.CreateTextTexture(pGameOverText, pFontGameOver2P, white);
+      gameOverTwoPlayers.SetTexture(pGameOverTwoPlayers);
+      gameOverTwoPlayers.SetScale(ConvertFullHd(gameOverTwoPlayers.GetTextureSize()));
+
+      return;
+    }
+
+    // Valid new positions, so handle snake's tail
+    for (size_t i = 0UL; i < players.size(); ++i)
+    {
+      if (   (singlePlayer)
+          && (apple.IsOnPosition({ fieldPosition.x + (snakeHeadpos[i].x * fieldGridScale.x) + (fieldGridScale.x / 2),
+                                    fieldPosition.y + (snakeHeadpos[i].y * fieldGridScale.y) + (fieldGridScale.x / 2) })))
+      {
+        // Eat apple
+        (void)Mix_PlayChannel(-1, pBiteSound, 0);
+        RandomApplePosition();
+        ++scoreCount;
+        UpdateScoreDisplay();
+      }
+      else if (singlePlayer || ((numberOfMoves % 3UL) != 0UL))
+      {
+        RemoveSnakeTail(players[i]);
+      }
+
+      if (singlePlayer)
+      {
+        // Only handle player 0 for single player mode
+        break;
+      }
+    }
+
   }
 }
 
@@ -569,7 +614,14 @@ void Game::Render(void)
 
   if (state == State::GameOver)
   {
-    engine.Render(gameOver);
+    if (singlePlayer)
+    {
+      engine.Render(gameOver);
+    }
+    else
+    {
+      engine.Render(gameOverTwoPlayers);
+    }
   }
 
   if (state == State::NewHighscore)

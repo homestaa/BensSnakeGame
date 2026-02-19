@@ -109,6 +109,7 @@ private:
   TTF_Font* pFontButton;
   TTF_Font* pFontScore;
   TTF_Font* pFontHighscores;
+  TTF_Font* pFontGameOver2P;
   TTF_Font* pFontStandard;
   TTF_Font* pFontStandardSmall;
 
@@ -117,6 +118,7 @@ private:
   SDL_Texture* pStart;
   SDL_Texture* pOnePlayer;
   SDL_Texture* pTwoPlayer;
+  SDL_Texture* pGameOverTwoPlayers;
   SDL_Texture* pExit;
   SDL_Texture* pScore;
   SDL_Texture* pHighscores;
@@ -147,6 +149,7 @@ private:
   Entity start;
   Entity onePlayer;
   Entity twoPlayer;
+  Entity gameOverTwoPlayers;
   Entity exit;
   Entity score;
   Entity titleBackground;

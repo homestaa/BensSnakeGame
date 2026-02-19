@@ -3,6 +3,7 @@
 #include "Engine.hpp"
 #include "Entity.hpp"
 #include "Position.hpp"
+#include <SDL_pixels.h>
 #include <deque>
 #include <string>
 #include <array>
@@ -81,6 +82,12 @@ private:
   static char constexpr HIGHSCORE_PATH[] = "./highscores.txt";
   static Position constexpr POS_CHECKED_1P = { 12, 140 };
   static Position constexpr POS_CHECKED_2P = { 12, 200 };
+  static constexpr SDL_Color BLACK = { 0U, 0U, 0U };
+  static constexpr SDL_Color WHITE = { 255U, 255U, 255U };
+  static constexpr SDL_Color RED = { 180U, 0U, 0U };
+  static constexpr SDL_Color GOLD = { 255, 215U, 0U };
+  static constexpr SDL_Color DARKBLUE = { 0U, 0U, 50U };
+  static constexpr SDL_Color DARKERBLUE = { 0U, 0U, 40U };
 
   Engine engine;
   Position resolution;
@@ -101,6 +108,8 @@ private:
   std::string highscoresStr;
   std::string newHighscoreName;
   std::array<HighscoreEntry, 3> highscoreEntries;
+  SDL_Color bannerBgColor;
+  SDL_Color bannerTxtColor;
 
   std::array<Player, 2> players;
 

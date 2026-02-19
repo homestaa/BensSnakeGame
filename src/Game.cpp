@@ -10,13 +10,6 @@
 #include <fstream>
 #include <iostream>
 
-static constexpr SDL_Color black = { 0U, 0U, 0U };
-static constexpr SDL_Color white = { 255U, 255U, 255U };
-static constexpr SDL_Color red = { 180U, 0U, 0U };
-static constexpr SDL_Color gold = { 255, 215U, 0U };
-static constexpr SDL_Color darkblue = { 0U, 0U, 50U };
-static constexpr SDL_Color darkerblue = { 0U, 0U, 40U };
-
 Game::Game(Position const & res)
 : engine("Ben's Snake Game", res)
 , resolution(engine.GetResolution())
@@ -36,6 +29,8 @@ Game::Game(Position const & res)
 , highscoresStr()
 , newHighscoreName()
 , highscoreEntries{ HighscoreEntry{"-", 0}, HighscoreEntry{"-", 0}, HighscoreEntry{"-", 0} }
+, bannerBgColor{ 0 }
+, bannerTxtColor{ 0 }
 , players{ Player(engine.CreatePicTexture("./res/gfx/snakeHead0.png"),
                   engine.CreatePicTexture("./res/gfx/snakeHeadDead0.png"),
                   engine.CreatePicTexture("./res/gfx/snakeSkin0.jpg"), fieldGridScale, Field::Snake0),
@@ -49,17 +44,17 @@ Game::Game(Position const & res)
 , pFontGameOver2P(engine.CreateFont("./res/font/FromCartoonBlocks.ttf", 100))
 , pFontStandard(engine.CreateFont("./res/font/Montserrat.ttf", 36))
 , pFontStandardSmall(engine.CreateFont("./res/font/Montserrat.ttf", 24))
-, pBensGame(engine.CreateTextTexture("Bens Snake Game", pFontTitle, black))
-, pStart(engine.CreateTextTexture("Start", pFontButton, red))
-, pOnePlayer(engine.CreateTextTexture(" 1 P", pFontButton, red))
-, pTwoPlayer(engine.CreateTextTexture("2 P", pFontButton, red))
-, pGameOverTwoPlayers(engine.CreateTextTexture("", pFontGameOver2P, white))
-, pExit(engine.CreateTextTexture("Exit", pFontButton, red))
-, pScore(engine.CreateTextTexture("x  0", pFontScore, black))
-, pHighscores(engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, white))
-, pNewHighScore(engine.CreateTextTexture("New highscore!", pFontStandard, white))
-, pEnterName(engine.CreateTextTexture("Enter name:", pFontStandard, white))
-, pVersion(engine.CreateTextTexture(VERSION, pFontStandardSmall, black))
+, pBensGame(engine.CreateTextTexture("Bens Snake Game", pFontTitle, BLACK))
+, pStart(engine.CreateTextTexture("Start", pFontButton, RED))
+, pOnePlayer(engine.CreateTextTexture(" 1 P", pFontButton, RED))
+, pTwoPlayer(engine.CreateTextTexture("2 P", pFontButton, RED))
+, pGameOverTwoPlayers(engine.CreateTextTexture("", pFontGameOver2P, WHITE))
+, pExit(engine.CreateTextTexture("Exit", pFontButton, RED))
+, pScore(engine.CreateTextTexture("x  0", pFontScore, BLACK))
+, pHighscores(engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, bannerTxtColor))
+, pNewHighScore(engine.CreateTextTexture("New highscore!", pFontStandard, WHITE))
+, pEnterName(engine.CreateTextTexture("Enter name:", pFontStandard, WHITE))
+, pVersion(engine.CreateTextTexture(VERSION, pFontStandardSmall, BLACK))
 , pTitleBackground(engine.CreatePicTexture("./res/gfx/titleBackground.jpg"))
 , pChecked(engine.CreatePicTexture("./res/gfx/checked.png"))
 , pArrows(engine.CreatePicTexture("./res/gfx/arrows.png"))
@@ -96,6 +91,14 @@ Game::Game(Position const & res)
 {
   // use current time as seed for random generator
   std::srand(std::time({}));
+
+  // Randomize plane's banner color with complementary text color
+  bannerBgColor = { static_cast<uint8_t>(std::rand() % 255),
+                    static_cast<uint8_t>(std::rand() % 255),
+                    static_cast<uint8_t>(std::rand() % 255) };
+  bannerTxtColor.r = bannerBgColor.r + 128U;
+  bannerTxtColor.g = bannerBgColor.g + 128U;
+  bannerTxtColor.b = bannerBgColor.b + 128U;
 
   ApplyStoredHighscores();
 
@@ -296,7 +299,7 @@ void Game::UpdateScoreDisplay(void)
 {
   std::string const scoreString = "x  " + std::to_string(scoreCount);
   engine.DestroyTexture(pScore);
-  pScore = engine.CreateTextTexture(scoreString.c_str(), pFontScore, black);
+  pScore = engine.CreateTextTexture(scoreString.c_str(), pFontScore, BLACK);
   score.SetTexture(pScore);
   score.SetScale(ConvertFullHd(score.GetTextureSize()));
 }
@@ -541,7 +544,7 @@ void Game::HandleGame(void)
         (   (players[0].snakeHead.GetTexture() == players[0].pSnakeHeadDead)
          && (players[1].snakeHead.GetTexture() == players[1].pSnakeHead))     ? "Player 2 wins!" :
                                                                                 "   Draw Game!";
-      pGameOverTwoPlayers = engine.CreateTextTexture(pGameOverText, pFontGameOver2P, white);
+      pGameOverTwoPlayers = engine.CreateTextTexture(pGameOverText, pFontGameOver2P, WHITE);
       gameOverTwoPlayers.SetTexture(pGameOverTwoPlayers);
       gameOverTwoPlayers.SetScale(ConvertFullHd(gameOverTwoPlayers.GetTextureSize()));
 
@@ -597,7 +600,7 @@ void Game::RenderField(void)
         engine.RenderRect({ fieldPosition.x + (column * fieldGridScale.x),
                             fieldPosition.y + (line * fieldGridScale.y)},
                           fieldGridScale,
-                          (((line + column) % 2) == 0) ? darkblue : darkerblue);
+                          (((line + column) % 2) == 0) ? DARKBLUE : DARKERBLUE);
       }
     }
   }
@@ -660,12 +663,11 @@ void Game::RenderPlane(void)
 {
   engine.Render(plane);
 
-  SDL_Color constexpr bannerColor = gold;
   Position const bannerPos = { plane.GetPosition().x + plane.GetScale().x,
                                plane.GetPosition().y + ConvertFullHdHeight(26) };
   Position const bannerScale = { highscores.GetScale().x + ConvertFullHdWidth(20),
                                  ConvertFullHdHeight(72) };
-  engine.RenderRect(bannerPos, bannerScale, bannerColor);
+  engine.RenderRect(bannerPos, bannerScale, bannerBgColor);
 
   std::vector<Position> const bannerTailTop =
   {{
@@ -673,7 +675,7 @@ void Game::RenderPlane(void)
     { bannerPos.x + bannerScale.x + ConvertFullHdWidth(50), bannerPos.y },
     { bannerPos.x + bannerScale.x,      bannerPos.y + bannerScale.y / 2 },
   }};
-  engine.RenderGeometry(bannerTailTop, bannerColor);
+  engine.RenderGeometry(bannerTailTop, bannerBgColor);
 
   std::vector<Position> const bannerTailBottom =
   {{
@@ -681,7 +683,7 @@ void Game::RenderPlane(void)
     { bannerPos.x + bannerScale.x + ConvertFullHdWidth(50), bannerPos.y + bannerScale.y },
     { bannerPos.x + bannerScale.x,      bannerPos.y + bannerScale.y },
   }};
-  engine.RenderGeometry(bannerTailBottom, bannerColor);
+  engine.RenderGeometry(bannerTailBottom, bannerBgColor);
 
   engine.Render(highscores);
 }
@@ -691,14 +693,14 @@ void Game::RenderInputForNewHighscore(void)
 {
   engine.RenderRect(gameOver.GetPosition() - ConvertFullHd({ 10, 10 }),
                     gameOver.GetScale() + ConvertFullHd({ 20, 20 }),
-                    gold);
-  engine.RenderRect(gameOver.GetPosition(), gameOver.GetScale(), black);
+                    GOLD);
+  engine.RenderRect(gameOver.GetPosition(), gameOver.GetScale(), BLACK);
   engine.Render(trophy);
   engine.Render(newHighscore);
   engine.Render(enterName);
 
   // Render player input
-  SDL_Texture* const pNewHSName(engine.CreateTextTexture(newHighscoreName.c_str(), pFontStandard, gold));
+  SDL_Texture* const pNewHSName(engine.CreateTextTexture(newHighscoreName.c_str(), pFontStandard, GOLD));
   Entity newHSName(pNewHSName, gameOver.GetPosition() + ConvertFullHd({ 300, 300 }));
   newHSName.SetScale(ConvertFullHd(newHSName.GetTextureSize()));
   engine.Render(newHSName);
@@ -720,7 +722,7 @@ void Game::UpdateHighscoreBanner(void)
     highscoresStr.append(std::to_string(highscoreEntries[i].score));
     highscoresStr.append(")    ");
   }
-  pHighscores = engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, red);
+  pHighscores = engine.CreateTextTexture(highscoresStr.c_str(), pFontHighscores, bannerTxtColor);
   highscores.SetTexture(pHighscores);
   highscores.SetScale(ConvertFullHd(highscores.GetTextureSize()));
 }

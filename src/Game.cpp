@@ -36,12 +36,12 @@ Game::Game(Position const & res)
 , highscoresStr()
 , newHighscoreName()
 , highscoreEntries{ HighscoreEntry{"-", 0}, HighscoreEntry{"-", 0}, HighscoreEntry{"-", 0} }
-, players{ Player(engine.CreatePicTexture("./res/gfx/snakeHead.png"),
-                  engine.CreatePicTexture("./res/gfx/snakeHeadDead.png"),
-                  engine.CreatePicTexture("./res/gfx/snakeSkin.jpg"), fieldGridScale, Field::Snake0),
-           Player(engine.CreatePicTexture("./res/gfx/snakeHead.png"),
-                  engine.CreatePicTexture("./res/gfx/snakeHeadDead.png"),
-                  engine.CreatePicTexture("./res/gfx/snakeSkin.jpg"), fieldGridScale, Field::Snake1) }
+, players{ Player(engine.CreatePicTexture("./res/gfx/snakeHead0.png"),
+                  engine.CreatePicTexture("./res/gfx/snakeHeadDead0.png"),
+                  engine.CreatePicTexture("./res/gfx/snakeSkin0.jpg"), fieldGridScale, Field::Snake0),
+           Player(engine.CreatePicTexture("./res/gfx/snakeHead1.png"),
+                  engine.CreatePicTexture("./res/gfx/snakeHeadDead1.png"),
+                  engine.CreatePicTexture("./res/gfx/snakeSkin1.jpg"), fieldGridScale, Field::Snake1) }
 , pFontTitle(engine.CreateFont("./res/font/28DaysLater.ttf", 64))
 , pFontButton(engine.CreateFont("./res/font/GretoonHighlight.ttf", 28))
 , pFontScore(engine.CreateFont("./res/font/TradingPostBold.ttf", 36))
